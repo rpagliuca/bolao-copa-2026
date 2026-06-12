@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { api } from '../api'
 import { fmtDateTime } from '../format'
 import type { AuditLog } from '../types'
@@ -39,7 +40,8 @@ function HistoryModal({
       .catch((e) => setError(e.message))
   }, [entityType, entityId])
 
-  return (
+  // portal: fora da árvore do card para não herdar opacity de linhas "fora do prazo"
+  return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
@@ -52,7 +54,8 @@ function HistoryModal({
         {!error && !logs && <div className="loading">Carregando…</div>}
         {logs && <HistoryLogList logs={logs} />}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

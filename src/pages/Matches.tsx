@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api'
 import { HistoryButton } from '../components/History'
+import { IgnoredTag } from '../components/IgnoredTag'
 import { fmtDateHeading, fmtDayKey, fmtDateTime, fmtTime } from '../format'
 import { teamName } from '../teams'
 import type { MatchView } from '../types'
@@ -89,7 +90,7 @@ function MatchCard({ match, onSaved }: { match: MatchView; onSaved: () => void }
       {match.myBet && (
         <div className={`my-bet ${match.myBet.ignored ? 'ignored' : ''}`}>
           Seu palpite: <strong>{match.myBet.homeScore} x {match.myBet.awayScore}</strong>
-          {match.myBet.ignored && ' (ignorado — feito após o início)'}
+          {match.myBet.ignored && <IgnoredTag />}
           {match.myBet.points !== null && !match.myBet.ignored && ` → ${match.myBet.points} pts`}
           <HistoryButton entityType="bet" entityId={match.myBet.id} title="Histórico — seu palpite" />
         </div>
@@ -109,7 +110,7 @@ function MatchCard({ match, onSaved }: { match: MatchView; onSaved: () => void }
                 </span>
                 <span>
                   {b.homeScore} x {b.awayScore}
-                  {b.ignored ? ' · ignorado' : b.points !== null ? ` · ${b.points} pts` : ''}
+                  {b.ignored ? <IgnoredTag /> : b.points !== null ? ` · ${b.points} pts` : ''}
                   <HistoryButton entityType="bet" entityId={b.id} title={`Histórico — palpite de ${b.userName}`} />
                 </span>
               </li>

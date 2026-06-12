@@ -424,6 +424,19 @@ input[type='number'] {
   color: var(--danger);
 }
 
+/* selinho de palpite fora do prazo */
+.ignored-tag {
+  background: #fff3e0;
+  color: var(--warn);
+  border: none;
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 12px;
+  margin-left: 6px;
+  cursor: help;
+  vertical-align: middle;
+}
+
 /* histórico de alterações */
 .history-btn {
   background: none;

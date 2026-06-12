@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api'
 import { HistoryButton, HistoryLogList } from '../components/History'
+import { IgnoredTag } from '../components/IgnoredTag'
 import { fmtDateTime, fromLocalInput, toLocalInput } from '../format'
 import { teamName } from '../teams'
 import type { AdminBet, AdminMatch, AuditLog, Me } from '../types'
@@ -287,7 +288,7 @@ function Bets() {
                 <br />
                 <small>
                   {fmtDateTime(b.betAt)} · {b.origin === 'admin' ? 'avulso' : 'app'}
-                  {b.ignored && ' · IGNORADO'}
+                  {b.ignored && <IgnoredTag />}
                 </small>
               </span>
               <span className="admin-bet-actions">

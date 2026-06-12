@@ -11,9 +11,10 @@ interface AuditEntry {
   after?: unknown
 }
 
-export async function audit(actor: User, entry: AuditEntry) {
+// actor null = ação automática do sistema (sem usuário)
+export async function audit(actor: User | null, entry: AuditEntry) {
   await db.insert(auditLogs).values({
-    actorId: actor.id,
+    actorId: actor?.id ?? null,
     action: entry.action,
     entityType: entry.entityType,
     entityId: entry.entityId,

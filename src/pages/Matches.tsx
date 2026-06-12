@@ -146,7 +146,7 @@ function MatchCard({
       {!match.finished && live && (
         <p className="live-note">
           {live.status === 'FINISHED'
-            ? 'Placar final — aguardando o resultado oficial ser lançado para valer pontos'
+            ? 'Placar final — registrando resultado…'
             : 'Placar em tempo real — pontos só valem com o resultado oficial'}
         </p>
       )}
@@ -248,7 +248,13 @@ export default function Matches() {
       if (document.visibilityState !== 'visible') return
       if (!matches.some(maybeLiveNow)) return
       api<{ scores: LiveScore[] }>('/api/live')
-        .then((r) => setLive(Object.fromEntries(r.scores.map((s) => [s.matchId, s]))))
+        .then((r) => {
+          setLive(Object.fromEntries(r.scores.map((s) => [s.matchId, s])))
+          // jogo acabou de encerrar: o backend já registrou o resultado — recarrega p/ mostrar pontos
+          if (r.scores.some((s) => s.status === 'FINISHED' && matches.some((m) => m.id === s.matchId && !m.finished))) {
+            load()
+          }
+        })
         .catch(() => {}) // placar ao vivo é cosmético: falha não pode quebrar a página
     }
     poll()

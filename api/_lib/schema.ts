@@ -66,7 +66,8 @@ export const auditLogs = pgTable(
   'audit_logs',
   {
     id: serial('id').primaryKey(),
-    actorId: integer('actor_id').notNull().references(() => users.id),
+    // null = ação automática do sistema (ex.: resultado via football-data)
+    actorId: integer('actor_id').references(() => users.id),
     action: text('action').notNull(), // ex.: match.update, bet.create, user.promote
     entityType: text('entity_type', { enum: ['match', 'bet', 'user'] }).notNull(),
     entityId: integer('entity_id').notNull(),

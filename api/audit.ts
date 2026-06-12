@@ -91,11 +91,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const rows = await db
       .select({ log: auditLogs, actorName: users.name })
       .from(auditLogs)
-      .innerJoin(users, eq(auditLogs.actorId, users.id))
+      .leftJoin(users, eq(auditLogs.actorId, users.id))
       .where(and(eq(auditLogs.entityType, entityType), eq(auditLogs.entityId, entityId!)))
       .orderBy(desc(auditLogs.createdAt), desc(auditLogs.id))
     // palpites são públicos, então o histórico deles também é
-    const logs = rows.map((r) => serialize(r.log, r.actorName))
+    const logs = rows.map((r) => serialize(r.log, r.actorName ?? '🤖 Sistema'))
     // criação real já registrada (match.create / bet.create) dispensa o evento sintético
     const hasCreate = rows.some((r) => r.log.action === `${entityType}.create`)
     if (!hasCreate) {
@@ -111,8 +111,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const rows = await db
     .select({ log: auditLogs, actorName: users.name })
     .from(auditLogs)
-    .innerJoin(users, eq(auditLogs.actorId, users.id))
+    .leftJoin(users, eq(auditLogs.actorId, users.id))
     .orderBy(desc(auditLogs.createdAt), desc(auditLogs.id))
     .limit(limit)
-  res.json({ logs: rows.map((r) => serialize(r.log, r.actorName)) })
+  res.json({ logs: rows.map((r) => serialize(r.log, r.actorName ?? '🤖 Sistema')) })
 }

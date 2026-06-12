@@ -639,6 +639,42 @@ input[type='number'] {
   opacity: 1;
 }
 
+/* toast temporário */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1c2520;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-size: 14px;
+  max-width: 90vw;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  z-index: 200;
+  animation: toast-in 0.25s ease, toast-out 0.4s ease 2.8s forwards;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 14px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translate(-50%, 14px);
+  }
+}
+
 /* selinho de palpite fora do prazo */
 .ignored-tag {
   background: #fff3e0;

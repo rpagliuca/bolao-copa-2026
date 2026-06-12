@@ -1,5 +1,6 @@
 import confetti from 'canvas-confetti'
 import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { api } from '../api'
 import { HistoryButton } from '../components/History'
 import { IgnoredTag } from '../components/IgnoredTag'
@@ -73,14 +74,24 @@ function BetForm({ match, onSaved }: { match: MatchView; onSaved: () => void }) 
   )
 }
 
+const SHARE_TOASTS = [
+  '📣 Resumo copiado! Agora é só colar no grupo e cobrar geral 😎',
+  '✅ Tá na área de transferência! Ctrl+V no zap da família 📲',
+  '🔥 Copiado! Vai lá esquentar o grupo do WhatsApp',
+  '📋➡️📱 Resumo pronto pra colar no WhatsApp. Solta o verbo!',
+]
+
 function MatchCard({ match, players, onSaved }: { match: MatchView; players: string[]; onSaved: () => void }) {
   const status = match.finished ? 'Encerrado' : match.started ? 'Em andamento' : fmtTime(match.kickoffAt)
   const [copied, setCopied] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
 
   const share = async () => {
     await navigator.clipboard.writeText(buildMatchShareText(match, players))
     setCopied(true)
+    setToast(SHARE_TOASTS[Math.floor(Math.random() * SHARE_TOASTS.length)])
     setTimeout(() => setCopied(false), 2000)
+    setTimeout(() => setToast(null), 3200)
   }
 
   return (
@@ -92,6 +103,7 @@ function MatchCard({ match, players, onSaved }: { match: MatchView; players: str
           <button className="share-btn" title="Copiar resumo para anunciar no grupo" onClick={share}>
             {copied ? '✅' : '📣'}
           </button>
+          {toast && createPortal(<div className="toast">{toast}</div>, document.body)}
           <HistoryButton
             entityType="match"
             entityId={match.id}

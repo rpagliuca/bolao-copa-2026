@@ -97,13 +97,16 @@ function MatchCard({ match, onSaved }: { match: MatchView; onSaved: () => void }
 
       {!match.finished && <BetForm match={match} onSaved={onSaved} />}
 
-      {match.bets && match.bets.length > 0 && (
-        <details className="others">
-          <summary>Palpites da galera ({match.bets.length})</summary>
+      <div className="others">
+        <strong className="others-title">Palpites da galera {match.bets.length > 0 && `(${match.bets.length})`}</strong>
+        {match.bets.length > 0 ? (
           <ul>
             {match.bets.map((b) => (
               <li key={b.userId} className={b.ignored ? 'ignored' : ''}>
-                <span>{b.userName}</span>
+                <span className="player">
+                  {b.userPhoto && <img src={b.userPhoto} alt="" referrerPolicy="no-referrer" />}
+                  {b.userName}
+                </span>
                 <span>
                   {b.homeScore} x {b.awayScore}
                   {b.ignored ? ' · ignorado' : b.points !== null ? ` · ${b.points} pts` : ''}
@@ -112,8 +115,10 @@ function MatchCard({ match, onSaved }: { match: MatchView; onSaved: () => void }
               </li>
             ))}
           </ul>
-        </details>
-      )}
+        ) : (
+          <span className="footnote"> ninguém palpitou ainda — seja o primeiro! 🎯</span>
+        )}
+      </div>
     </div>
   )
 }
@@ -172,7 +177,8 @@ export default function Matches() {
       ))}
       <p className="footnote">
         Horários de Brasília. Palpite vale o placar com prorrogação (sem pênaltis) · Placar exato = 5 pts ·
-        Resultado certo = 2 pts. Palpites feitos após o início do jogo são ignorados.
+        Resultado certo = 2 pts. Palpites são públicos — espiar é permitido, copiar é por sua conta e risco 😄
+        Palpites feitos após o início do jogo são ignorados.
       </p>
     </div>
   )

@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { and, desc, eq } from 'drizzle-orm'
 import { requireApproved } from './_lib/auth.js'
 import { db } from './_lib/db.js'
-import { auditLogs, matches, users, type AuditLog } from './_lib/schema.js'
+import { auditLogs, users, type AuditLog } from './_lib/schema.js'
 
 const ENTITY_TYPES = ['match', 'bet', 'user'] as const
 type EntityType = (typeof ENTITY_TYPES)[number]
@@ -44,23 +44,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .innerJoin(users, eq(auditLogs.actorId, users.id))
       .where(and(eq(auditLogs.entityType, entityType), eq(auditLogs.entityId, entityId!)))
       .orderBy(desc(auditLogs.createdAt), desc(auditLogs.id))
-    if (rows.length === 0) return res.json({ logs: [] })
-
-    // palpites seguem a mesma regra de visibilidade do app:
-    // só o dono (ou admin) vê antes de a bola rolar
-    if (entityType === 'bet' && !user.isAdmin) {
-      const snapshot = (rows[0].log.after ?? rows[0].log.before) as { userId?: number } | null
-      const ownerId = snapshot?.userId
-      if (ownerId !== user.id) {
-        const matchId = rows[0].log.matchId
-        const [match] = matchId
-          ? await db.select().from(matches).where(eq(matches.id, matchId))
-          : []
-        if (!match || match.kickoffAt.getTime() > Date.now()) {
-          return res.status(403).json({ error: 'Histórico disponível após o início do jogo' })
-        }
-      }
-    }
+    // palpites são públicos, então o histórico deles também é
     return res.json({ logs: rows.map((r) => serialize(r.log, r.actorName)) })
   }
 

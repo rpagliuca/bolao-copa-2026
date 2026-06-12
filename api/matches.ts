@@ -42,22 +42,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             points: betPoints(mine.bet, m),
           }
         : null,
-      // quem já palpitou (sem placar) — visível sempre, para cobrar os atrasados
-      bettors: matchBets.map((b) => ({ userId: b.bet.userId, userName: b.userName })),
-      // palpites dos outros só ficam visíveis depois que a bola rola
-      bets: started
-        ? matchBets.map((b) => ({
-            id: b.bet.id,
-            userId: b.bet.userId,
-            userName: b.userName,
-            userPhoto: b.userPhoto,
-            homeScore: b.bet.homeScore,
-            awayScore: b.bet.awayScore,
-            origin: b.bet.origin,
-            ignored: isIgnored(b.bet, m),
-            points: betPoints(b.bet, m),
-          }))
-        : null,
+      // palpites são sempre públicos — bolão sem segredo, é brincadeira de família
+      bets: matchBets.map((b) => ({
+        id: b.bet.id,
+        userId: b.bet.userId,
+        userName: b.userName,
+        userPhoto: b.userPhoto,
+        homeScore: b.bet.homeScore,
+        awayScore: b.bet.awayScore,
+        origin: b.bet.origin,
+        ignored: isIgnored(b.bet, m),
+        points: betPoints(b.bet, m),
+      })),
     }
   })
 

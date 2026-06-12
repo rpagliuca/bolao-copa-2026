@@ -273,8 +273,8 @@ input[type='number'] {
   font-size: 14px;
 }
 
-.others summary {
-  cursor: pointer;
+.others-title {
+  font-size: 13px;
   color: var(--green-dark);
 }
 
@@ -422,36 +422,6 @@ input[type='number'] {
 
 .link.danger {
   color: var(--danger);
-}
-
-/* lista de todos os palpites */
-.player-filter {
-  width: 100%;
-  margin-bottom: 4px;
-}
-
-.all-bets-match .match-meta {
-  margin-bottom: 0;
-  align-items: center;
-}
-
-.all-bets-list {
-  list-style: none;
-  margin: 8px 0 0;
-  padding: 0;
-  font-size: 14px;
-}
-
-.all-bets-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 0;
-  border-bottom: 1px dashed #e3e8e4;
-}
-
-.all-bets-list li:last-child {
-  border-bottom: none;
 }
 
 /* histórico de alterações */

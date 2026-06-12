@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { api } from './api'
 import { clearToken, getToken, setToken } from './auth'
 import Admin from './pages/Admin'
-import AllBets from './pages/AllBets'
 import Matches from './pages/Matches'
 import Ranking from './pages/Ranking'
 import type { Me } from './types'
@@ -61,7 +60,7 @@ function Pending({ me, onLogout }: { me: Me; onLogout: () => void }) {
   )
 }
 
-type Tab = 'jogos' | 'palpites' | 'ranking' | 'admin'
+type Tab = 'jogos' | 'ranking' | 'admin'
 
 export default function App() {
   const [token, setTokenState] = useState(getToken())
@@ -126,9 +125,6 @@ export default function App() {
         <button className={tab === 'jogos' ? 'active' : ''} onClick={() => setTab('jogos')}>
           Jogos
         </button>
-        <button className={tab === 'palpites' ? 'active' : ''} onClick={() => setTab('palpites')}>
-          Palpites
-        </button>
         <button className={tab === 'ranking' ? 'active' : ''} onClick={() => setTab('ranking')}>
           Ranking
         </button>
@@ -141,7 +137,6 @@ export default function App() {
 
       <main className="content">
         {tab === 'jogos' && <Matches />}
-        {tab === 'palpites' && <AllBets />}
         {tab === 'ranking' && <Ranking />}
         {tab === 'admin' && me.isAdmin && <Admin me={me} />}
       </main>

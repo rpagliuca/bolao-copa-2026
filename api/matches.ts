@@ -9,7 +9,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const user = await requireApproved(req, res)
   if (!user) return
 
-  const [allMatches, allBets, allReactions] = await Promise.all([
+  const [allMatches, allBets, allReactions, approvedPlayers] = await Promise.all([
     db.select().from(matches).orderBy(asc(matches.kickoffAt), asc(matches.id)),
     db
       .select({ bet: bets, userName: users.name, userPhoto: users.photoUrl })
@@ -19,6 +19,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .select({ r: betReactions, userName: users.name })
       .from(betReactions)
       .innerJoin(users, eq(betReactions.userId, users.id)),
+    db.select({ name: users.name }).from(users).where(eq(users.status, 'approved')),
   ])
 
   // agrega reações por palpite: [{ emoji, count, mine, names }]
@@ -74,5 +75,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   })
 
-  res.json({ matches: result })
+  res.json({ matches: result, players: approvedPlayers.map((p) => p.name) })
 }

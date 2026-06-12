@@ -531,6 +531,21 @@ input[type='number'] {
   padding: 4px;
 }
 
+/* botão de copiar resumo p/ WhatsApp */
+.share-btn {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  margin-left: 6px;
+  font-size: 14px;
+  opacity: 0.55;
+  vertical-align: middle;
+}
+
+.share-btn:hover {
+  opacity: 1;
+}
+
 /* selinho de palpite fora do prazo */
 .ignored-tag {
   background: #fff3e0;

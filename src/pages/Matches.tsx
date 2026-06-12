@@ -1,9 +1,11 @@
+import confetti from 'canvas-confetti'
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api'
 import { HistoryButton } from '../components/History'
 import { IgnoredTag } from '../components/IgnoredTag'
 import { ReactionBubble } from '../components/Reactions'
 import { fmtDateHeading, fmtDayKey, fmtDateTime, fmtTime } from '../format'
+import { buildMatchShareText } from '../share'
 import { teamName } from '../teams'
 import type { MatchView } from '../types'
 
@@ -65,14 +67,25 @@ function BetForm({ match, onSaved }: { match: MatchView; onSaved: () => void }) 
   )
 }
 
-function MatchCard({ match, onSaved }: { match: MatchView; onSaved: () => void }) {
+function MatchCard({ match, players, onSaved }: { match: MatchView; players: string[]; onSaved: () => void }) {
   const status = match.finished ? 'Encerrado' : match.started ? 'Em andamento' : fmtTime(match.kickoffAt)
+  const [copied, setCopied] = useState(false)
+
+  const share = async () => {
+    await navigator.clipboard.writeText(buildMatchShareText(match, players))
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
     <div className={`card match ${match.finished ? 'finished' : ''}`}>
       <div className="match-meta">
         <span className="chip">{match.phase}</span>
         <span>
           <span className={`chip ${match.started && !match.finished ? 'live' : 'time'}`}>{status}</span>
+          <button className="share-btn" title="Copiar resumo para colar no WhatsApp" onClick={share}>
+            {copied ? '✅' : '📋'}
+          </button>
           <HistoryButton
             entityType="match"
             entityId={match.id}
@@ -127,14 +140,41 @@ function MatchCard({ match, onSaved }: { match: MatchView; onSaved: () => void }
   )
 }
 
+// confete quando o usuário abre o app e descobre que cravou um placar exato
+function celebrateNewExactHits(matches: MatchView[]) {
+  const KEY = 'bolao-confetti-celebrated'
+  const seen: number[] = JSON.parse(localStorage.getItem(KEY) ?? '[]')
+  const hits = matches.filter(
+    (m) =>
+      m.finished &&
+      m.myBet &&
+      !m.myBet.ignored &&
+      m.myBet.homeScore === m.homeScore &&
+      m.myBet.awayScore === m.awayScore &&
+      !seen.includes(m.id),
+  )
+  if (hits.length === 0) return
+  localStorage.setItem(KEY, JSON.stringify([...seen, ...hits.map((m) => m.id)]))
+  const burst = (delay: number, opts: confetti.Options) =>
+    setTimeout(() => confetti({ particleCount: 90, spread: 75, origin: { y: 0.7 }, ...opts }), delay)
+  burst(0, {})
+  burst(300, { angle: 60, origin: { x: 0, y: 0.8 } })
+  burst(500, { angle: 120, origin: { x: 1, y: 0.8 } })
+}
+
 export default function Matches() {
   const [matches, setMatches] = useState<MatchView[] | null>(null)
+  const [players, setPlayers] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<Filter>('abertos')
 
   const load = () =>
-    api<{ matches: MatchView[] }>('/api/matches')
-      .then((r) => setMatches(r.matches))
+    api<{ matches: MatchView[]; players: string[] }>('/api/matches')
+      .then((r) => {
+        setMatches(r.matches)
+        setPlayers(r.players)
+        celebrateNewExactHits(r.matches)
+      })
       .catch((e) => setError(e.message))
 
   useEffect(() => {
@@ -175,7 +215,7 @@ export default function Matches() {
         <section key={group[0].kickoffAt}>
           <h2 className="day-heading">{fmtDateHeading(group[0].kickoffAt)}</h2>
           {group.map((m) => (
-            <MatchCard key={m.id} match={m} onSaved={load} />
+            <MatchCard key={m.id} match={m} players={players} onSaved={load} />
           ))}
         </section>
       ))}

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api'
 import { HistoryButton } from '../components/History'
 import { IgnoredTag } from '../components/IgnoredTag'
-import { ReactionBar } from '../components/Reactions'
+import { ReactionBubble } from '../components/Reactions'
 import { fmtDateHeading, fmtDayKey, fmtDateTime, fmtTime } from '../format'
 import { teamName } from '../teams'
 import type { MatchView } from '../types'
@@ -109,12 +109,13 @@ function MatchCard({ match, onSaved }: { match: MatchView; onSaved: () => void }
                   {b.userPhoto && <img src={b.userPhoto} alt="" referrerPolicy="no-referrer" />}
                   {b.userName}
                 </span>
-                <span>
-                  {b.homeScore} x {b.awayScore}
-                  {b.ignored ? <IgnoredTag /> : b.points !== null ? ` · ${b.points} pts` : ''}
+                <span className="bet-side">
+                  <ReactionBubble betId={b.id} reactions={b.reactions} onChanged={onSaved}>
+                    {b.homeScore} x {b.awayScore}
+                    {b.ignored ? <IgnoredTag /> : b.points !== null ? ` · ${b.points} pts` : ''}
+                  </ReactionBubble>
                   <HistoryButton entityType="bet" entityId={b.id} title={`Histórico — palpite de ${b.userName}`} />
                 </span>
-                <ReactionBar betId={b.id} reactions={b.reactions} onChanged={onSaved} />
               </li>
             ))}
           </ul>

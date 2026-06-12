@@ -443,36 +443,71 @@ input[type='number'] {
   z-index: 30;
 }
 
-/* reações nos palpites */
-.others li {
-  flex-wrap: wrap;
+/* reações nos palpites — balão estilo WhatsApp */
+.bet-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
 
-.reactions {
-  display: flex;
-  flex-basis: 100%;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 2px;
+.bet-bubble-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
 
-.reaction-chip {
+.bet-bubble {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
   background: #eef3ef;
-  border: 1px solid transparent;
+  border-radius: 14px;
+  padding: 4px 10px;
+}
+
+.bet-bubble:has(.reaction-badge) {
+  margin-bottom: 12px;
+}
+
+.reaction-badge {
+  position: absolute;
+  bottom: -12px;
+  right: -2px;
+  background: #fff;
+  border: 1px solid #dfe6e1;
   border-radius: 999px;
-  padding: 1px 8px;
-  font-size: 13px;
-  line-height: 1.5;
+  padding: 0 6px;
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
-.reaction-chip.mine {
-  background: #dcefe2;
-  border-color: var(--green);
+/* emoji fantasma: invisível até o hover na linha; esmaecido em telas de toque */
+.react-ghost {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  font-size: 15px;
+  filter: grayscale(1);
+  opacity: 0;
+  transition: opacity 0.15s;
 }
 
-.reaction-chip.add {
-  color: var(--muted);
-  font-weight: 700;
+.others li:hover .react-ghost,
+.my-bet:hover .react-ghost {
+  opacity: 0.45;
+}
+
+.react-ghost:hover {
+  opacity: 0.9;
+  filter: grayscale(0);
+}
+
+@media (hover: none) {
+  .react-ghost {
+    opacity: 0.3;
+  }
 }
 
 .emoji-picker-box {

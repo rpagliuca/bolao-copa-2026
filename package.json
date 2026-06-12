@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",
+    "date-fns": "^4.4.0",
     "drizzle-orm": "^0.44.2",
     "jose": "^6.0.10",
     "react": "^19.1.0",
+    "react-datepicker": "^9.1.0",
     "react-dom": "^19.1.0"
   },
   "devDependencies": {

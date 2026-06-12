@@ -424,6 +424,25 @@ input[type='number'] {
   color: var(--danger);
 }
 
+/* campos de data/hora (react-datepicker) */
+.datetime-field {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.datetime-field input {
+  width: 110px;
+}
+
+.datetime-field > div:last-child input {
+  width: 70px;
+  text-align: center;
+}
+
+.react-datepicker-popper {
+  z-index: 30;
+}
+
 /* selinho de palpite fora do prazo */
 .ignored-tag {
   background: #fff3e0;

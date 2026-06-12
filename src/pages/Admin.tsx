@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api'
+import { DateTimeField } from '../components/DateTimeField'
 import { HistoryButton, HistoryLogList } from '../components/History'
 import { IgnoredTag } from '../components/IgnoredTag'
-import { fmtDateTime, fromLocalInput, toLocalInput } from '../format'
+import { fmtDateTime } from '../format'
 import { teamName } from '../teams'
 import type { AdminBet, AdminMatch, AuditLog, Me } from '../types'
 
@@ -74,19 +75,23 @@ function Users({ me }: { me: Me }) {
 }
 
 function MatchRow({ match, onSaved }: { match: AdminMatch; onSaved: () => void }) {
-  const [kickoff, setKickoff] = useState(toLocalInput(match.kickoffAt))
+  const [kickoff, setKickoff] = useState<Date | null>(new Date(match.kickoffAt))
   const [home, setHome] = useState(match.homeScore?.toString() ?? '')
   const [away, setAway] = useState(match.awayScore?.toString() ?? '')
   const [msg, setMsg] = useState<string | null>(null)
 
   const save = async () => {
     setMsg(null)
+    if (!kickoff) {
+      setMsg('❌ Informe a data e hora de início')
+      return
+    }
     try {
       await api('/api/admin/matches', {
         method: 'PUT',
         body: JSON.stringify({
           id: match.id,
-          kickoffAt: fromLocalInput(kickoff),
+          kickoffAt: kickoff.toISOString(),
           homeScore: home === '' ? null : Number(home),
           awayScore: away === '' ? null : Number(away),
         }),
@@ -110,7 +115,7 @@ function MatchRow({ match, onSaved }: { match: AdminMatch; onSaved: () => void }
         />
       </div>
       <div className="admin-match-form">
-        <input type="datetime-local" value={kickoff} onChange={(e) => setKickoff(e.target.value)} />
+        <DateTimeField value={kickoff} onChange={setKickoff} />
         <input
           type="number"
           min={0}
@@ -188,7 +193,7 @@ function Bets() {
   const [matchId, setMatchId] = useState('')
   const [home, setHome] = useState('')
   const [away, setAway] = useState('')
-  const [betAt, setBetAt] = useState('')
+  const [betAt, setBetAt] = useState<Date | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
 
   const loadBets = () => api<{ bets: AdminBet[] }>('/api/admin/bets').then((r) => setBets(r.bets))
@@ -212,7 +217,7 @@ function Bets() {
           matchId: Number(matchId),
           homeScore: Number(home),
           awayScore: Number(away),
-          ...(betAt ? { betAt: fromLocalInput(betAt) } : {}),
+          ...(betAt ? { betAt: betAt.toISOString() } : {}),
         }),
       })
       setMsg('✅ Palpite lançado')
@@ -269,7 +274,7 @@ function Bets() {
             <input type="number" min={0} max={99} placeholder="-" value={away} onChange={(e) => setAway(e.target.value)} />
           </div>
           <label>
-            Feito em: <input type="datetime-local" value={betAt} onChange={(e) => setBetAt(e.target.value)} />
+            Feito em: <DateTimeField value={betAt} onChange={setBetAt} placeholder="agora" />
           </label>
           <button className="btn" onClick={save}>
             Lançar palpite

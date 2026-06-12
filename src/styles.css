@@ -278,6 +278,19 @@ input[type='number'] {
   color: #c2410c;
 }
 
+/* pontuação provisória de cada palpite durante o jogo */
+.live-pts {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: #ffe9e3;
+  color: #c2410c;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .match.finished .score {
   color: var(--green-dark);
 }

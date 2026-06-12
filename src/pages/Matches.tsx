@@ -86,6 +86,35 @@ const LIVE_LABELS: Record<LiveScore['status'], string> = {
   FINISHED: 'Encerrado',
 }
 
+// pontuação provisória com o placar parcial (mesma regra do backend: 5 exato, 2 resultado)
+function livePoints(betHome: number, betAway: number, live: LiveScore): number {
+  if (betHome === live.homeScore && betAway === live.awayScore) return 5
+  return Math.sign(betHome - betAway) === Math.sign(live.homeScore - live.awayScore) ? 2 : 0
+}
+
+// gols só aumentam: ainda dá pra cravar o exato se o palpite não ficou abaixo do placar atual
+function canStillHitExact(betHome: number, betAway: number, live: LiveScore): boolean {
+  if (live.status === 'FINISHED') return false
+  return betHome >= live.homeScore && betAway >= live.awayScore
+}
+
+// badge de pontos ao vivo de um palpite válido: +5/+2/0 e 🎯 quando o exato segue possível
+function LiveBetBadge({ betHome, betAway, live }: { betHome: number; betAway: number; live: LiveScore }) {
+  const pts = livePoints(betHome, betAway, live)
+  const exactPossible = pts !== 5 && canStillHitExact(betHome, betAway, live)
+  return (
+    <span className="live-pts" title="Pontuação com o placar de agora (provisória)">
+      {pts === 5 ? '🔥 +5' : `+${pts}`}
+      {exactPossible && (
+        <span title="Ainda dá pra cravar o placar exato" aria-label="Ainda dá pra cravar o placar exato">
+          {' '}
+          🎯
+        </span>
+      )}
+    </span>
+  )
+}
+
 function MatchCard({
   match,
   live,
@@ -147,7 +176,9 @@ function MatchCard({
       </div>
       {!match.finished && live && (
         <p className="live-note">
-          {live.status === 'FINISHED' ? 'Placar final — registrando resultado…' : 'Placar em tempo real'}
+          {live.status === 'FINISHED'
+            ? 'Placar final — registrando resultado…'
+            : 'Placar em tempo real · pontos provisórios · 🎯 = ainda dá pra cravar'}
         </p>
       )}
 
@@ -156,6 +187,9 @@ function MatchCard({
           Seu palpite: <strong>{match.myBet.homeScore} x {match.myBet.awayScore}</strong>
           {match.myBet.ignored && <IgnoredTag />}
           {match.myBet.points !== null && !match.myBet.ignored && ` → ${match.myBet.points} pts`}
+          {!match.finished && live && !match.myBet.ignored && (
+            <LiveBetBadge betHome={match.myBet.homeScore} betAway={match.myBet.awayScore} live={live} />
+          )}
           <HistoryButton entityType="bet" entityId={match.myBet.id} title="Histórico — seu palpite" />
         </div>
       )}
@@ -176,6 +210,9 @@ function MatchCard({
                   <ReactionBubble betId={b.id} reactions={b.reactions} onChanged={onSaved}>
                     {b.homeScore} x {b.awayScore}
                     {b.ignored ? <IgnoredTag /> : b.points !== null ? ` · ${b.points} pts` : ''}
+                    {!match.finished && live && !b.ignored && (
+                      <LiveBetBadge betHome={b.homeScore} betAway={b.awayScore} live={live} />
+                    )}
                   </ReactionBubble>
                   <HistoryButton entityType="bet" entityId={b.id} title={`Histórico — palpite de ${b.userName}`} />
                 </span>

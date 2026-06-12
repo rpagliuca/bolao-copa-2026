@@ -5,7 +5,7 @@ import { HistoryButton, HistoryLogList } from '../components/History'
 import { IgnoredTag } from '../components/IgnoredTag'
 import { fmtDateTime } from '../format'
 import { teamName } from '../teams'
-import type { AdminBet, AdminMatch, AuditLog, Me } from '../types'
+import type { AdminBet, AdminMatch, AuditLog, FeedChange, FeedFieldChange, Me } from '../types'
 
 function Users({ me }: { me: Me }) {
   const [users, setUsers] = useState<Me[] | null>(null)
@@ -142,6 +142,111 @@ function MatchRow({ match, onSaved }: { match: AdminMatch; onSaved: () => void }
   )
 }
 
+const FEED_FIELD_LABELS: Record<FeedFieldChange['field'], string> = {
+  phase: 'fase',
+  homeTeam: 'time da casa',
+  awayTeam: 'visitante',
+  kickoffAt: 'início',
+  homeScore: 'gols casa',
+  awayScore: 'gols visitante',
+}
+
+function fmtFeedValue(field: FeedFieldChange['field'], value: string | number | null): string {
+  if (value === null) return '—'
+  if (field === 'homeTeam' || field === 'awayTeam') return teamName(String(value))
+  if (field === 'kickoffAt') return fmtDateTime(String(value))
+  return String(value)
+}
+
+function FeedSync({ onApplied }: { onApplied: () => void }) {
+  const [busy, setBusy] = useState(false)
+  const [changes, setChanges] = useState<FeedChange[] | null>(null)
+  const [msg, setMsg] = useState<string | null>(null)
+
+  const preview = async () => {
+    setBusy(true)
+    setMsg(null)
+    setChanges(null)
+    try {
+      const r = await api<{ changes: FeedChange[] }>('/api/admin/feed-sync')
+      if (r.changes.length === 0) setMsg('✅ Nenhuma novidade — os jogos já estão iguais ao feed.')
+      else setChanges(r.changes)
+    } catch (e: any) {
+      setMsg(`❌ ${e.message}`)
+    }
+    setBusy(false)
+  }
+
+  const apply = async () => {
+    if (!changes) return
+    setBusy(true)
+    setMsg(null)
+    try {
+      const r = await api<{ applied: number; skipped: { matchId: number; reason: string }[] }>(
+        '/api/admin/feed-sync',
+        { method: 'POST', body: JSON.stringify({ changes }) },
+      )
+      const skipNote = r.skipped.length
+        ? ` · ${r.skipped.length} pulado(s) (${r.skipped.map((s) => `#${s.matchId}`).join(', ')}) — busque de novo`
+        : ''
+      setMsg(`✅ ${r.applied} jogo(s) atualizado(s)${skipNote}`)
+      setChanges(null)
+      onApplied()
+    } catch (e: any) {
+      setMsg(`❌ ${e.message}`)
+    }
+    setBusy(false)
+  }
+
+  return (
+    <div className="card">
+      <h3>Atualizar lista de jogos</h3>
+      <p className="footnote">
+        Busca a tabela oficial no feed (fixturedownload.com) e mostra os ajustes antes de salvar — é assim
+        que os classificados dos grupos entram nos jogos do mata-mata. Placares já lançados aqui nunca são
+        alterados pelo feed.
+      </p>
+      {!changes && (
+        <button className="btn" onClick={preview} disabled={busy}>
+          {busy ? 'Buscando feed…' : '🔄 Buscar atualizações'}
+        </button>
+      )}
+      {changes && (
+        <>
+          <ul className="admin-list feed-diff">
+            {changes.map((c) => (
+              <li key={c.matchId}>
+                <div className="admin-match-title">
+                  <strong>#{c.matchId}</strong> {teamName(c.homeTeam)} x {teamName(c.awayTeam)}
+                  <span className="chip">{c.phase}</span>
+                  {c.kind === 'create' && <span className="chip warn">jogo novo</span>}
+                </div>
+                <ul className="feed-diff-fields">
+                  {c.fields.map((f) => (
+                    <li key={f.field}>
+                      {FEED_FIELD_LABELS[f.field]}: {fmtFeedValue(f.field, f.from)} →{' '}
+                      <strong>{fmtFeedValue(f.field, f.to)}</strong>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+          <div className="feed-diff-actions">
+            <button className="btn" onClick={apply} disabled={busy}>
+              {busy ? 'Aplicando…' : `✅ Aprovar e aplicar ${changes.length} ajuste(s)`}
+            </button>
+            <button className="btn secondary" onClick={() => setChanges(null)} disabled={busy}>
+              Cancelar
+            </button>
+          </div>
+        </>
+      )}
+      {msg && <p className="bet-msg">{msg}</p>}
+    </div>
+  )
+}
+
 function Matches() {
   const [matches, setMatches] = useState<AdminMatch[] | null>(null)
   const [query, setQuery] = useState('')
@@ -164,6 +269,8 @@ function Matches() {
 
   if (!matches) return <div className="loading">Carregando…</div>
   return (
+    <>
+    <FeedSync onApplied={load} />
     <div className="card">
       <h3>Jogos e resultados</h3>
       <p className="footnote">
@@ -182,6 +289,7 @@ function Matches() {
         ))}
       </ul>
     </div>
+    </>
   )
 }
 

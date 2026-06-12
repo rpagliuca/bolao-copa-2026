@@ -66,6 +66,21 @@ export interface AdminMatch {
   awayScore: number | null
 }
 
+export interface FeedFieldChange {
+  field: 'phase' | 'homeTeam' | 'awayTeam' | 'kickoffAt' | 'homeScore' | 'awayScore'
+  from: string | number | null
+  to: string | number | null
+}
+
+export interface FeedChange {
+  matchId: number
+  kind: 'create' | 'update'
+  phase: string
+  homeTeam: string
+  awayTeam: string
+  fields: FeedFieldChange[]
+}
+
 export interface AuditLog {
   id: number
   actorName: string

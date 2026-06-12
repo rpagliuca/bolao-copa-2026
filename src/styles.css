@@ -501,6 +501,31 @@ input[type='number'] {
   margin-bottom: 10px;
 }
 
+/* diff de atualização via feed */
+.feed-diff > li {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.feed-diff-fields {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0 0 0 12px;
+  font-size: 14px;
+  color: #555;
+}
+
+.feed-diff-fields strong {
+  color: var(--green-dark);
+}
+
+.feed-diff-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
 /* buttons */
 .btn {
   background: var(--green);
@@ -518,6 +543,11 @@ input[type='number'] {
 .btn.small {
   padding: 7px 14px;
   font-size: 14px;
+}
+
+.btn.secondary {
+  background: #eef1ee;
+  color: var(--green-dark);
 }
 
 .link {

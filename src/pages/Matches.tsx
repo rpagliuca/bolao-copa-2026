@@ -6,7 +6,7 @@ import { IgnoredTag } from '../components/IgnoredTag'
 import { ReactionBubble } from '../components/Reactions'
 import { fmtDateHeading, fmtDayKey, fmtDateTime, fmtTime } from '../format'
 import { buildMatchShareText } from '../share'
-import { teamName } from '../teams'
+import { isRealTeam, teamName } from '../teams'
 import type { MatchView } from '../types'
 
 type Filter = 'abertos' | 'todos' | 'encerrados'
@@ -191,6 +191,7 @@ export default function Matches() {
       codes.add(m.awayTeam)
     }
     return [...codes]
+      .filter(isRealTeam)
       .map((code) => ({ code, name: teamName(code) }))
       .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
   }, [matches])

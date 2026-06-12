@@ -50,6 +50,11 @@ const PT_NAMES: Record<string, string> = {
   'To be announced': 'A definir',
 }
 
+// seleção de verdade (exclui placeholders do mata-mata como 1A, 3ABCDF, "To be announced")
+export function isRealTeam(raw: string): boolean {
+  return raw in PT_NAMES && raw !== 'To be announced'
+}
+
 export function teamName(raw: string): string {
   if (PT_NAMES[raw]) return PT_NAMES[raw]
   const seed = raw.match(/^([12])([A-L])$/)

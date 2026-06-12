@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { asc, eq } from 'drizzle-orm'
-import { requireApproved } from './_lib/auth'
-import { db } from './_lib/db'
-import { bets, matches, users } from './_lib/schema'
-import { betPoints, isIgnored } from './_lib/scoring'
+import { requireApproved } from './_lib/auth.js'
+import { db } from './_lib/db.js'
+import { bets, matches, users } from './_lib/schema.js'
+import { betPoints, isIgnored } from './_lib/scoring.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const user = await requireApproved(req, res)

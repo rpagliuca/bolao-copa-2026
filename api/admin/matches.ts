@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { asc, eq } from 'drizzle-orm'
-import { requireAdmin } from '../_lib/auth'
-import { db } from '../_lib/db'
-import { matches } from '../_lib/schema'
+import { requireAdmin } from '../_lib/auth.js'
+import { db } from '../_lib/db.js'
+import { matches } from '../_lib/schema.js'
 
 function parseScore(v: unknown): number | null | undefined {
   if (v === null || v === '') return null

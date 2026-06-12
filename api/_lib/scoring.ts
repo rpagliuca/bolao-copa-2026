@@ -1,4 +1,4 @@
-import type { Bet, Match } from './schema'
+import type { Bet, Match } from './schema.js'
 
 export const POINTS_EXACT = 5
 export const POINTS_OUTCOME = 2

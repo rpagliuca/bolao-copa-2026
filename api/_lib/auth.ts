@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
-import { db } from './db'
-import { users, type User } from './schema'
+import { db } from './db.js'
+import { users, type User } from './schema.js'
 
 const JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'))
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID ?? process.env.VITE_GOOGLE_CLIENT_ID

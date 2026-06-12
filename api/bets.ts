@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { eq } from 'drizzle-orm'
-import { requireApproved } from './_lib/auth'
-import { db } from './_lib/db'
-import { bets, matches } from './_lib/schema'
-import { isIgnored } from './_lib/scoring'
+import { requireApproved } from './_lib/auth.js'
+import { db } from './_lib/db.js'
+import { bets, matches } from './_lib/schema.js'
+import { isIgnored } from './_lib/scoring.js'
 
 function validScore(n: unknown): n is number {
   return typeof n === 'number' && Number.isInteger(n) && n >= 0 && n <= 99

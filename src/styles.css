@@ -179,6 +179,12 @@ input[type='number'] {
   color: #fff;
 }
 
+.filters .sort-btn {
+  margin-left: auto;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+
 .team-filter {
   border-radius: 999px;
   padding: 6px 10px;

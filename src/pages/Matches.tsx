@@ -262,8 +262,15 @@ export default function Matches() {
   const [live, setLive] = useState<Record<number, LiveScore>>({})
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<Filter>('abertos')
+  // encerrados: mais recentes primeiro por padrão; abertos/todos: próximos primeiro
+  const [desc, setDesc] = useState(false)
   const [team, setTeam] = useState('')
   const [onlyUnbet, setOnlyUnbet] = useState(false)
+
+  const pickFilter = (f: Filter) => {
+    setFilter(f)
+    setDesc(f === 'encerrados')
+  }
 
   const load = () =>
     api<{ matches: MatchView[]; players: string[] }>('/api/matches')
@@ -323,8 +330,11 @@ export default function Matches() {
     if (filter === 'encerrados') list = list.filter((m) => m.finished)
     if (team) list = list.filter((m) => m.homeTeam === team || m.awayTeam === team)
     if (onlyUnbet) list = list.filter((m) => !m.myBet)
-    return list
-  }, [matches, filter, team, onlyUnbet])
+    const dir = desc ? -1 : 1
+    return [...list].sort(
+      (a, b) => dir * (new Date(a.kickoffAt).getTime() - new Date(b.kickoffAt).getTime() || a.id - b.id),
+    )
+  }, [matches, filter, team, onlyUnbet, desc])
 
   const byDay = useMemo(() => {
     const groups = new Map<string, MatchView[]>()
@@ -343,10 +353,18 @@ export default function Matches() {
     <div>
       <div className="filters">
         {(['abertos', 'todos', 'encerrados'] as Filter[]).map((f) => (
-          <button key={f} className={filter === f ? 'active' : ''} onClick={() => setFilter(f)}>
+          <button key={f} className={filter === f ? 'active' : ''} onClick={() => pickFilter(f)}>
             {f[0].toUpperCase() + f.slice(1)}
           </button>
         ))}
+        <button
+          className="sort-btn"
+          title={desc ? 'Mais recentes primeiro — clique para inverter' : 'Mais antigos primeiro — clique para inverter'}
+          aria-label="Inverter ordenação por data"
+          onClick={() => setDesc(!desc)}
+        >
+          {desc ? '📅↓' : '📅↑'}
+        </button>
       </div>
       <div className="filters">
         <select className="team-filter" value={team} onChange={(e) => setTeam(e.target.value)}>

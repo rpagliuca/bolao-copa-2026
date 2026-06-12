@@ -100,7 +100,9 @@ function MatchCard({
   const status = match.finished
     ? 'Encerrado'
     : live
-      ? LIVE_LABELS[live.status]
+      ? live.status === 'IN_PLAY' && live.clock
+        ? `🔴 AO VIVO · ${live.clock}`
+        : LIVE_LABELS[live.status]
       : match.started
         ? 'Em andamento'
         : fmtTime(match.kickoffAt)

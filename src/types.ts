@@ -71,6 +71,7 @@ export interface LiveScore {
   status: 'IN_PLAY' | 'PAUSED' | 'FINISHED'
   homeScore: number
   awayScore: number
+  clock?: string | null
 }
 
 export interface FeedFieldChange {

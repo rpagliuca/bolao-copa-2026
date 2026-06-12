@@ -6,7 +6,7 @@ import { fetchLiveScores, type LiveScore } from './_lib/livescore.js'
 import { liveCache, matches, type Match } from './_lib/schema.js'
 
 // Placar ao vivo, público (não expõe nada além do placar dos jogos).
-// Camadas de proteção do limite gratuito do football-data (10 req/min):
+// Fonte: ESPN (sem rate limit conhecido, mas educadamente cacheado igual):
 // 1. CDN da Vercel cacheia a resposta por 20s (s-maxage)
 // 2. cache em banco compartilhado entre todas as functions, renovado a cada 25s
 const FRESH_MS = 25_000

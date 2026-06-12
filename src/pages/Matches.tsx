@@ -83,8 +83,8 @@ function MatchCard({ match, players, onSaved }: { match: MatchView; players: str
         <span className="chip">{match.phase}</span>
         <span>
           <span className={`chip ${match.started && !match.finished ? 'live' : 'time'}`}>{status}</span>
-          <button className="share-btn" title="Copiar resumo para colar no WhatsApp" onClick={share}>
-            {copied ? '✅' : '📋'}
+          <button className="share-btn" title="Copiar resumo para anunciar no grupo" onClick={share}>
+            {copied ? '✅' : '📣'}
           </button>
           <HistoryButton
             entityType="match"

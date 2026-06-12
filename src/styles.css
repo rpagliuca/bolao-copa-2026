@@ -443,6 +443,59 @@ input[type='number'] {
   z-index: 30;
 }
 
+/* reações nos palpites */
+.others li {
+  flex-wrap: wrap;
+}
+
+.reactions {
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.reaction-chip {
+  background: #eef3ef;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.reaction-chip.mine {
+  background: #dcefe2;
+  border-color: var(--green);
+}
+
+.reaction-chip.add {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.emoji-picker-box {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 10px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.emoji-quick-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.emoji-quick-row button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  padding: 4px;
+}
+
 /* selinho de palpite fora do prazo */
 .ignored-tag {
   background: #fff3e0;

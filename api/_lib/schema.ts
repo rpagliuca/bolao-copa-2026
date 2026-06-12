@@ -38,6 +38,21 @@ export const bets = pgTable(
   (t) => [uniqueIndex('bets_user_match_idx').on(t.userId, t.matchId)],
 )
 
+// reações de emoji nos palpites (zoeira liberada)
+export const betReactions = pgTable(
+  'bet_reactions',
+  {
+    id: serial('id').primaryKey(),
+    betId: integer('bet_id')
+      .notNull()
+      .references(() => bets.id, { onDelete: 'cascade' }),
+    userId: integer('user_id').notNull().references(() => users.id),
+    emoji: text('emoji').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex('bet_reactions_unique_idx').on(t.betId, t.userId, t.emoji)],
+)
+
 // trilha de auditoria das ações administrativas
 export const auditLogs = pgTable(
   'audit_logs',
@@ -61,3 +76,4 @@ export type User = typeof users.$inferSelect
 export type Match = typeof matches.$inferSelect
 export type Bet = typeof bets.$inferSelect
 export type AuditLog = typeof auditLogs.$inferSelect
+export type BetReaction = typeof betReactions.$inferSelect

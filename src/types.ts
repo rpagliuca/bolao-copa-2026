@@ -16,11 +16,19 @@ export interface BetView {
   points: number | null
 }
 
+export interface ReactionSummary {
+  emoji: string
+  count: number
+  mine: boolean
+  names: string[]
+}
+
 export interface OtherBet extends BetView {
   userId: number
   userName: string
   userPhoto: string | null
   origin: 'app' | 'admin'
+  reactions: ReactionSummary[]
 }
 
 export interface MatchView {

@@ -15,7 +15,8 @@ export default function Rules() {
         <h3>🏆 Pontuação</h3>
         <ul className="rules-list">
           <li>
-            <strong>Placar exato → 5 pontos</strong> 🎯 (e confete quando você abrir o app, pode esperar)
+            <strong>Placar exato → 5 pontos</strong> 🎯 (e uma surpresa quando você abrir o app, após o jogo,
+            pode esperar)
           </li>
           <li>
             <strong>Acertou o resultado</strong> (vencedor ou empate, sem cravar o placar) → <strong>2 pontos</strong>

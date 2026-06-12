@@ -2,10 +2,13 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { and, desc, eq } from 'drizzle-orm'
 import { requireApproved } from './_lib/auth.js'
 import { db } from './_lib/db.js'
-import { auditLogs, users, type AuditLog } from './_lib/schema.js'
+import { auditLogs, bets, matches, users, type AuditLog } from './_lib/schema.js'
 
 const ENTITY_TYPES = ['match', 'bet', 'user'] as const
 type EntityType = (typeof ENTITY_TYPES)[number]
+
+// quando o db:seed da carga inicial rodou (12/06/2026 ~10h de Brasília)
+const SEED_AT = '2026-06-12T13:00:00.000Z'
 
 function serialize(log: AuditLog, actorName: string) {
   return {
@@ -19,6 +22,53 @@ function serialize(log: AuditLog, actorName: string) {
     before: log.before,
     after: log.after,
     createdAt: log.createdAt.toISOString(),
+  }
+}
+
+// evento sintético de criação para objetos que nasceram fora da trilha de
+// auditoria (seed inicial, palpite do próprio jogador, login)
+async function creationEvent(entityType: EntityType, entityId: number) {
+  const base = { id: 0, entityType, entityId, before: null, after: null, matchId: null as number | null }
+
+  if (entityType === 'match') {
+    const [match] = await db.select().from(matches).where(eq(matches.id, entityId))
+    if (!match) return null
+    return {
+      ...base,
+      matchId: match.id,
+      actorName: 'Sistema',
+      action: 'match.seed',
+      summary: '📌 Jogo inserido automaticamente na carga inicial do bolão (horário aproximado)',
+      createdAt: SEED_AT,
+    }
+  }
+
+  if (entityType === 'bet') {
+    const [bet] = await db.select().from(bets).where(eq(bets.id, entityId))
+    if (!bet) return null
+    const [owner] = await db.select().from(users).where(eq(users.id, bet.userId))
+    const ownerName = owner?.name ?? `usuário #${bet.userId}`
+    return {
+      ...base,
+      matchId: bet.matchId,
+      actorName: bet.origin === 'app' ? ownerName : 'Admin',
+      action: 'bet.origin',
+      summary:
+        bet.origin === 'app'
+          ? `📌 Palpite registrado pelo próprio jogador no app (data do registro mais recente feito por ele)`
+          : `📌 Palpite lançado por admin em nome de ${ownerName} (anterior ao histórico de alterações)`,
+      createdAt: bet.betAt.toISOString(),
+    }
+  }
+
+  const [u] = await db.select().from(users).where(eq(users.id, entityId))
+  if (!u) return null
+  return {
+    ...base,
+    actorName: u.name,
+    action: 'user.signup',
+    summary: '📌 Entrou no bolão fazendo login com Google',
+    createdAt: u.createdAt.toISOString(),
   }
 }
 
@@ -45,7 +95,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .where(and(eq(auditLogs.entityType, entityType), eq(auditLogs.entityId, entityId!)))
       .orderBy(desc(auditLogs.createdAt), desc(auditLogs.id))
     // palpites são públicos, então o histórico deles também é
-    return res.json({ logs: rows.map((r) => serialize(r.log, r.actorName)) })
+    const logs = rows.map((r) => serialize(r.log, r.actorName))
+    // criação real já registrada (match.create / bet.create) dispensa o evento sintético
+    const hasCreate = rows.some((r) => r.log.action === `${entityType}.create`)
+    if (!hasCreate) {
+      const creation = await creationEvent(entityType, entityId!)
+      if (creation) logs.push(creation) // lista está em ordem decrescente; criação é o mais antigo
+    }
+    return res.json({ logs })
   }
 
   // visão centralizada: só admin

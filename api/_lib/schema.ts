@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, serial, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core'
+import { boolean, index, integer, jsonb, pgTable, serial, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core'
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -38,6 +38,26 @@ export const bets = pgTable(
   (t) => [uniqueIndex('bets_user_match_idx').on(t.userId, t.matchId)],
 )
 
+// trilha de auditoria das ações administrativas
+export const auditLogs = pgTable(
+  'audit_logs',
+  {
+    id: serial('id').primaryKey(),
+    actorId: integer('actor_id').notNull().references(() => users.id),
+    action: text('action').notNull(), // ex.: match.update, bet.create, user.promote
+    entityType: text('entity_type', { enum: ['match', 'bet', 'user'] }).notNull(),
+    entityId: integer('entity_id').notNull(),
+    // para logs de palpite: jogo relacionado (regra de visibilidade e histórico por jogo)
+    matchId: integer('match_id'),
+    summary: text('summary').notNull(),
+    before: jsonb('before'),
+    after: jsonb('after'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('audit_entity_idx').on(t.entityType, t.entityId)],
+)
+
 export type User = typeof users.$inferSelect
 export type Match = typeof matches.$inferSelect
 export type Bet = typeof bets.$inferSelect
+export type AuditLog = typeof auditLogs.$inferSelect

@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { desc, eq } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
+import { audit } from '../_lib/audit.js'
 import { requireAdmin } from '../_lib/auth.js'
 import { db } from '../_lib/db.js'
 import { bets, matches, users } from '../_lib/schema.js'
@@ -50,6 +51,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (Number.isNaN(when.getTime())) return res.status(400).json({ error: 'betAt inválido' })
     const [target] = await db.select().from(users).where(eq(users.id, userId))
     if (!target) return res.status(404).json({ error: 'Jogador não encontrado (precisa ter feito login ao menos uma vez)' })
+    const [match] = await db.select().from(matches).where(eq(matches.id, matchId))
+    if (!match) return res.status(404).json({ error: 'Jogo não encontrado' })
+    const [existing] = await db
+      .select()
+      .from(bets)
+      .where(and(eq(bets.userId, userId), eq(bets.matchId, matchId)))
     const [saved] = await db
       .insert(bets)
       .values({ userId, matchId, homeScore, awayScore, betAt: when, origin: 'admin' })
@@ -58,6 +65,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         set: { homeScore, awayScore, betAt: when, origin: 'admin', invalidatedByAdmin: false },
       })
       .returning()
+    const matchLabel = `jogo #${match.id} ${match.homeTeam} x ${match.awayTeam}`
+    await audit(admin, {
+      action: existing ? 'bet.update' : 'bet.create',
+      entityType: 'bet',
+      entityId: saved.id,
+      matchId,
+      summary: existing
+        ? `Sobrescreveu o palpite de ${target.name} no ${matchLabel}: ${existing.homeScore}x${existing.awayScore} → ${homeScore}x${awayScore}`
+        : `Lançou palpite avulso de ${target.name} no ${matchLabel}: ${homeScore}x${awayScore}`,
+      before: existing ?? null,
+      after: saved,
+    })
     return res.status(201).json({ bet: saved })
   }
 
@@ -80,15 +99,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       set.betAt = when
     }
     if (Object.keys(set).length === 0) return res.status(400).json({ error: 'Nada para atualizar' })
+    const [before] = await db.select().from(bets).where(eq(bets.id, id))
+    if (!before) return res.status(404).json({ error: 'Palpite não encontrado' })
     const [updated] = await db.update(bets).set(set).where(eq(bets.id, id)).returning()
-    if (!updated) return res.status(404).json({ error: 'Palpite não encontrado' })
+    const [owner] = await db.select().from(users).where(eq(users.id, before.userId))
+    const parts: string[] = []
+    if (before.homeScore !== updated.homeScore || before.awayScore !== updated.awayScore) {
+      parts.push(`placar ${before.homeScore}x${before.awayScore} → ${updated.homeScore}x${updated.awayScore}`)
+    }
+    if (before.betAt.getTime() !== updated.betAt.getTime()) {
+      parts.push(`feito em ${before.betAt.toISOString()} → ${updated.betAt.toISOString()}`)
+    }
+    if (before.invalidatedByAdmin !== updated.invalidatedByAdmin) {
+      parts.push(updated.invalidatedByAdmin ? 'invalidou' : 'revalidou')
+    }
+    if (parts.length > 0) {
+      await audit(admin, {
+        action: 'bet.update',
+        entityType: 'bet',
+        entityId: updated.id,
+        matchId: updated.matchId,
+        summary: `Palpite de ${owner?.name ?? `usuário #${before.userId}`} no jogo #${updated.matchId}: ${parts.join('; ')}`,
+        before,
+        after: updated,
+      })
+    }
     return res.json({ bet: updated })
   }
 
   if (req.method === 'DELETE') {
     const id = Number(req.query.id ?? (req.body ?? {}).id)
     if (!Number.isInteger(id)) return res.status(400).json({ error: 'id inválido' })
+    const [before] = await db.select().from(bets).where(eq(bets.id, id))
+    if (!before) return res.status(404).json({ error: 'Palpite não encontrado' })
     await db.delete(bets).where(eq(bets.id, id))
+    const [owner] = await db.select().from(users).where(eq(users.id, before.userId))
+    await audit(admin, {
+      action: 'bet.delete',
+      entityType: 'bet',
+      entityId: before.id,
+      matchId: before.matchId,
+      summary: `Excluiu o palpite de ${owner?.name ?? `usuário #${before.userId}`} no jogo #${before.matchId} (${before.homeScore}x${before.awayScore})`,
+      before,
+    })
     return res.status(204).end()
   }
 

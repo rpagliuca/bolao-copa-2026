@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api'
+import { HistoryButton } from '../components/History'
 import { fmtDateHeading, fmtDayKey, fmtDateTime, fmtTime } from '../format'
 import { teamName } from '../teams'
 import type { MatchView } from '../types'
@@ -68,7 +69,14 @@ function MatchCard({ match, onSaved }: { match: MatchView; onSaved: () => void }
     <div className={`card match ${match.finished ? 'finished' : ''}`}>
       <div className="match-meta">
         <span className="chip">{match.phase}</span>
-        <span className={`chip ${match.started && !match.finished ? 'live' : 'time'}`}>{status}</span>
+        <span>
+          <span className={`chip ${match.started && !match.finished ? 'live' : 'time'}`}>{status}</span>
+          <HistoryButton
+            entityType="match"
+            entityId={match.id}
+            title={`Histórico — ${teamName(match.homeTeam)} x ${teamName(match.awayTeam)}`}
+          />
+        </span>
       </div>
       <div className="match-teams">
         <span className="team home">{teamName(match.homeTeam)}</span>
@@ -83,6 +91,7 @@ function MatchCard({ match, onSaved }: { match: MatchView; onSaved: () => void }
           Seu palpite: <strong>{match.myBet.homeScore} x {match.myBet.awayScore}</strong>
           {match.myBet.ignored && ' (ignorado — feito após o início)'}
           {match.myBet.points !== null && !match.myBet.ignored && ` → ${match.myBet.points} pts`}
+          <HistoryButton entityType="bet" entityId={match.myBet.id} title="Histórico — seu palpite" />
         </div>
       )}
 
@@ -98,6 +107,7 @@ function MatchCard({ match, onSaved }: { match: MatchView; onSaved: () => void }
                 <span>
                   {b.homeScore} x {b.awayScore}
                   {b.ignored ? ' · ignorado' : b.points !== null ? ` · ${b.points} pts` : ''}
+                  <HistoryButton entityType="bet" entityId={b.id} title={`Histórico — palpite de ${b.userName}`} />
                 </span>
               </li>
             ))}

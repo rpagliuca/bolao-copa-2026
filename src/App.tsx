@@ -138,7 +138,7 @@ export default function App() {
       <main className="content">
         {tab === 'jogos' && <Matches />}
         {tab === 'ranking' && <Ranking />}
-        {tab === 'admin' && me.isAdmin && <Admin />}
+        {tab === 'admin' && me.isAdmin && <Admin me={me} />}
       </main>
     </div>
   )

@@ -34,6 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       finished: m.homeScore != null && m.awayScore != null,
       myBet: mine
         ? {
+            id: mine.bet.id,
             homeScore: mine.bet.homeScore,
             awayScore: mine.bet.awayScore,
             betAt: mine.bet.betAt.toISOString(),
@@ -44,6 +45,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // palpites dos outros só ficam visíveis depois que a bola rola
       bets: started
         ? matchBets.map((b) => ({
+            id: b.bet.id,
             userId: b.bet.userId,
             userName: b.userName,
             userPhoto: b.userPhoto,

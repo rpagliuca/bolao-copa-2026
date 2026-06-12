@@ -8,6 +8,7 @@ export interface Me {
 }
 
 export interface BetView {
+  id: number
   homeScore: number
   awayScore: number
   betAt: string
@@ -55,6 +56,19 @@ export interface AdminMatch {
   kickoffAt: string
   homeScore: number | null
   awayScore: number | null
+}
+
+export interface AuditLog {
+  id: number
+  actorName: string
+  action: string
+  entityType: 'match' | 'bet' | 'user'
+  entityId: number
+  matchId: number | null
+  summary: string
+  before: Record<string, unknown> | null
+  after: Record<string, unknown> | null
+  createdAt: string
 }
 
 export interface AdminBet {

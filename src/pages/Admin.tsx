@@ -1,25 +1,40 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api'
+import { HistoryButton, HistoryLogList } from '../components/History'
 import { fmtDateTime, fromLocalInput, toLocalInput } from '../format'
 import { teamName } from '../teams'
-import type { AdminBet, AdminMatch, Me } from '../types'
+import type { AdminBet, AdminMatch, AuditLog, Me } from '../types'
 
-function Users() {
+function Users({ me }: { me: Me }) {
   const [users, setUsers] = useState<Me[] | null>(null)
+  const [msg, setMsg] = useState<string | null>(null)
   const load = () => api<{ users: Me[] }>('/api/admin/users').then((r) => setUsers(r.users))
   useEffect(() => {
     load()
   }, [])
 
-  const setStatus = async (id: number, status: 'approved' | 'pending') => {
-    await api('/api/admin/users', { method: 'PUT', body: JSON.stringify({ id, status }) })
+  const update = async (id: number, patch: { status?: 'approved' | 'pending'; isAdmin?: boolean }) => {
+    setMsg(null)
+    try {
+      await api('/api/admin/users', { method: 'PUT', body: JSON.stringify({ id, ...patch }) })
+    } catch (e: any) {
+      setMsg(`❌ ${e.message}`)
+    }
     load()
+  }
+
+  const toggleAdmin = (u: Me) => {
+    const ask = u.isAdmin
+      ? `Remover o acesso de admin de ${u.name}?`
+      : `Tornar ${u.name} admin? Admins podem alterar jogos, resultados e palpites de todos.`
+    if (confirm(ask)) update(u.id, { isAdmin: !u.isAdmin })
   }
 
   if (!users) return <div className="loading">Carregando…</div>
   return (
     <div className="card">
       <h3>Usuários</h3>
+      {msg && <p className="error">{msg}</p>}
       <ul className="admin-list">
         {users.map((u) => (
           <li key={u.id}>
@@ -29,17 +44,27 @@ function Users() {
               {u.isAdmin && <span className="chip">admin</span>}
               {u.status === 'pending' && <span className="chip warn">pendente</span>}
             </span>
-            {u.status === 'pending' ? (
-              <button className="btn small" onClick={() => setStatus(u.id, 'approved')}>
-                Aprovar
-              </button>
-            ) : (
-              !u.isAdmin && (
-                <button className="link" onClick={() => setStatus(u.id, 'pending')}>
-                  suspender
+            <span className="admin-bet-actions">
+              {u.status === 'pending' ? (
+                <button className="btn small" onClick={() => update(u.id, { status: 'approved' })}>
+                  Aprovar
                 </button>
-              )
-            )}
+              ) : (
+                u.id !== me.id && (
+                  <>
+                    <button className="link" onClick={() => toggleAdmin(u)}>
+                      {u.isAdmin ? 'remover admin' : 'tornar admin'}
+                    </button>
+                    {!u.isAdmin && (
+                      <button className="link danger" onClick={() => update(u.id, { status: 'pending' })}>
+                        suspender
+                      </button>
+                    )}
+                  </>
+                )
+              )}
+              <HistoryButton entityType="user" entityId={u.id} title={`Histórico — ${u.name}`} />
+            </span>
           </li>
         ))}
       </ul>
@@ -77,6 +102,11 @@ function MatchRow({ match, onSaved }: { match: AdminMatch; onSaved: () => void }
       <div className="admin-match-title">
         <strong>#{match.id}</strong> {teamName(match.homeTeam)} x {teamName(match.awayTeam)}
         <span className="chip">{match.phase}</span>
+        <HistoryButton
+          entityType="match"
+          entityId={match.id}
+          title={`Histórico — #${match.id} ${teamName(match.homeTeam)} x ${teamName(match.awayTeam)}`}
+        />
       </div>
       <div className="admin-match-form">
         <input type="datetime-local" value={kickoff} onChange={(e) => setKickoff(e.target.value)} />
@@ -267,6 +297,7 @@ function Bets() {
                 <button className="link danger" onClick={() => remove(b)}>
                   excluir
                 </button>
+                <HistoryButton entityType="bet" entityId={b.id} title={`Histórico — palpite de ${b.userName}`} />
               </span>
             </li>
           ))}
@@ -276,9 +307,29 @@ function Bets() {
   )
 }
 
-type Section = 'usuarios' | 'jogos' | 'palpites'
+function AuditTrail() {
+  const [logs, setLogs] = useState<AuditLog[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  useEffect(() => {
+    api<{ logs: AuditLog[] }>('/api/audit')
+      .then((r) => setLogs(r.logs))
+      .catch((e) => setError(e.message))
+  }, [])
 
-export default function Admin() {
+  if (error) return <p className="error">{error}</p>
+  if (!logs) return <div className="loading">Carregando…</div>
+  return (
+    <div className="card">
+      <h3>Histórico de ações administrativas</h3>
+      <p className="footnote">Toda alteração em jogos, resultados, palpites e usuários fica registrada aqui.</p>
+      <HistoryLogList logs={logs} />
+    </div>
+  )
+}
+
+type Section = 'usuarios' | 'jogos' | 'palpites' | 'historico'
+
+export default function Admin({ me }: { me: Me }) {
   const [section, setSection] = useState<Section>('jogos')
   return (
     <div>
@@ -292,10 +343,14 @@ export default function Admin() {
         <button className={section === 'usuarios' ? 'active' : ''} onClick={() => setSection('usuarios')}>
           Usuários
         </button>
+        <button className={section === 'historico' ? 'active' : ''} onClick={() => setSection('historico')}>
+          Histórico
+        </button>
       </div>
-      {section === 'usuarios' && <Users />}
+      {section === 'usuarios' && <Users me={me} />}
       {section === 'jogos' && <Matches />}
       {section === 'palpites' && <Bets />}
+      {section === 'historico' && <AuditTrail />}
     </div>
   )
 }

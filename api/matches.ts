@@ -42,6 +42,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             points: betPoints(mine.bet, m),
           }
         : null,
+      // quem já palpitou (sem placar) — visível sempre, para cobrar os atrasados
+      bettors: matchBets.map((b) => ({ userId: b.bet.userId, userName: b.userName })),
       // palpites dos outros só ficam visíveis depois que a bola rola
       bets: started
         ? matchBets.map((b) => ({

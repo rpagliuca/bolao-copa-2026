@@ -34,6 +34,7 @@ export interface MatchView {
   started: boolean
   finished: boolean
   myBet: BetView | null
+  bettors: { userId: number; userName: string }[]
   bets: OtherBet[] | null
 }
 

@@ -1,0 +1,30 @@
+{
+  "name": "bolao-copa-2026",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "db:push": "drizzle-kit push",
+    "db:seed": "tsx scripts/seed.ts"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.0",
+    "drizzle-orm": "^0.44.2",
+    "jose": "^6.0.10",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vercel/node": "^5.1.0",
+    "@vitejs/plugin-react": "^4.4.1",
+    "drizzle-kit": "^0.31.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.3.5"
+  }
+}

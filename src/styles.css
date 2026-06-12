@@ -1,0 +1,425 @@
+:root {
+  --green: #0a7d33;
+  --green-dark: #075c25;
+  --bg: #f2f5f3;
+  --card: #ffffff;
+  --text: #1c2520;
+  --muted: #66736b;
+  --warn: #b35c00;
+  --danger: #b3261e;
+  --radius: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+input,
+select {
+  font: inherit;
+  padding: 8px;
+  border: 1px solid #c9d2cc;
+  border-radius: 8px;
+  background: #fff;
+}
+
+input[type='number'] {
+  width: 58px;
+  text-align: center;
+}
+
+.app {
+  max-width: 640px;
+  margin: 0 auto;
+  padding-bottom: 48px;
+}
+
+.loading,
+.empty {
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--muted);
+}
+
+.error {
+  color: var(--danger);
+  text-align: center;
+  padding: 24px;
+}
+
+/* login */
+.login {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, var(--green) 0%, var(--green-dark) 100%);
+  padding: 16px;
+}
+
+.login-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 40px 32px;
+  text-align: center;
+  max-width: 340px;
+  width: 100%;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+}
+
+.login-ball {
+  font-size: 48px;
+}
+
+.login-card h1 {
+  margin: 12px 0 4px;
+  font-size: 24px;
+}
+
+.login-card p {
+  margin: 0 0 24px;
+  color: var(--muted);
+}
+
+.login-button {
+  display: flex;
+  justify-content: center;
+}
+
+/* header + tabs */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--green);
+  color: #fff;
+}
+
+.header-title {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.header-user {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.header-user img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
+.header-user .link {
+  color: #fff;
+}
+
+.tabs {
+  display: flex;
+  background: var(--green-dark);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 12px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 600;
+  border-bottom: 3px solid transparent;
+}
+
+.tabs button.active {
+  color: #fff;
+  border-bottom-color: #ffd23f;
+}
+
+.content {
+  padding: 16px;
+}
+
+/* filters */
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.filters button {
+  border: 1px solid #c9d2cc;
+  background: #fff;
+  border-radius: 999px;
+  padding: 6px 14px;
+  color: var(--muted);
+}
+
+.filters button.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+/* cards & matches */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.day-heading {
+  font-size: 15px;
+  color: var(--muted);
+  margin: 20px 0 8px;
+}
+
+.match-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.chip {
+  font-size: 12px;
+  background: #e7efe9;
+  color: var(--green-dark);
+  border-radius: 999px;
+  padding: 2px 10px;
+  margin-left: 6px;
+}
+
+.chip:first-child {
+  margin-left: 0;
+}
+
+.chip.live {
+  background: #ffe9e3;
+  color: #c2410c;
+}
+
+.chip.warn {
+  background: #fff3e0;
+  color: var(--warn);
+}
+
+.match-teams {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.team.home {
+  text-align: right;
+}
+
+.score {
+  font-size: 20px;
+  min-width: 56px;
+  text-align: center;
+}
+
+.match.finished .score {
+  color: var(--green-dark);
+}
+
+.my-bet {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.my-bet.ignored {
+  color: var(--warn);
+}
+
+.bet-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.bet-msg {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.others {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.others summary {
+  cursor: pointer;
+  color: var(--green-dark);
+}
+
+.others ul {
+  list-style: none;
+  padding: 8px 0 0;
+  margin: 0;
+}
+
+.others li {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px dashed #e3e8e4;
+}
+
+.others li.ignored,
+.admin-list li.ignored {
+  opacity: 0.55;
+}
+
+.footnote {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+/* ranking */
+.ranking {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ranking th {
+  text-align: left;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 6px 8px;
+}
+
+.ranking td {
+  padding: 10px 8px;
+  border-top: 1px solid #eef1ee;
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.player img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+/* admin */
+.admin-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-list > li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eef1ee;
+  flex-wrap: wrap;
+}
+
+.admin-match {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.admin-match-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-match-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-bet-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-bet-scores {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-bet-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.search {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* buttons */
+.btn {
+  background: var(--green);
+  border: none;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: 600;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+}
+
+.btn.small {
+  padding: 7px 14px;
+  font-size: 14px;
+}
+
+.link {
+  background: none;
+  border: none;
+  color: var(--green-dark);
+  text-decoration: underline;
+  padding: 0;
+  font-size: 14px;
+}
+
+.link.danger {
+  color: var(--danger);
+}

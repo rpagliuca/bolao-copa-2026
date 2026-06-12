@@ -40,27 +40,33 @@ function BetForm({ match, onSaved }: { match: MatchView; onSaved: () => void }) 
 
   return (
     <div className="bet-form">
-      <input
-        type="number"
-        inputMode="numeric"
-        min={0}
-        max={99}
-        value={home}
-        onChange={(e) => setHome(e.target.value)}
-        aria-label={`Gols ${teamName(match.homeTeam)}`}
-      />
-      <span>x</span>
-      <input
-        type="number"
-        inputMode="numeric"
-        min={0}
-        max={99}
-        value={away}
-        onChange={(e) => setAway(e.target.value)}
-        aria-label={`Gols ${teamName(match.awayTeam)}`}
-      />
-      <button className="btn small" onClick={save} disabled={saving}>
-        {saving ? '…' : match.myBet ? 'Alterar' : 'Palpitar'}
+      <div className="score-board">
+        <span className="score-team">{teamName(match.homeTeam)}</span>
+        <input
+          type="number"
+          inputMode="numeric"
+          min={0}
+          max={99}
+          placeholder="·"
+          value={home}
+          onChange={(e) => setHome(e.target.value)}
+          aria-label={`Gols ${teamName(match.homeTeam)}`}
+        />
+        <span className="score-vs">×</span>
+        <input
+          type="number"
+          inputMode="numeric"
+          min={0}
+          max={99}
+          placeholder="·"
+          value={away}
+          onChange={(e) => setAway(e.target.value)}
+          aria-label={`Gols ${teamName(match.awayTeam)}`}
+        />
+        <span className="score-team">{teamName(match.awayTeam)}</span>
+      </div>
+      <button className="btn bet-submit" onClick={save} disabled={saving}>
+        {saving ? '…' : match.myBet ? 'Alterar palpite' : '🎯 Cravar palpite'}
       </button>
       {msg && <span className="bet-msg">{msg}</span>}
     </div>

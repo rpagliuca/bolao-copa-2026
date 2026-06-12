@@ -42,6 +42,7 @@ function BetForm({ match, onSaved }: { match: MatchView; onSaved: () => void }) 
   return (
     <div className="bet-form">
       <div className="score-board">
+        <span className="score-board-tag">{match.myBet ? '🎯 Seu palpite' : '🤔 Qual seu palpite?'}</span>
         <span className="score-team">{teamName(match.homeTeam)}</span>
         <input
           type="number"

@@ -258,6 +258,26 @@ input[type='number'] {
   text-align: center;
 }
 
+/* placar em tempo real (football-data.org) */
+.score.live {
+  color: #c2410c;
+  font-weight: 700;
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.live-note {
+  margin: 2px 0 6px;
+  text-align: center;
+  font-size: 12px;
+  color: #c2410c;
+}
+
 .match.finished .score {
   color: var(--green-dark);
 }

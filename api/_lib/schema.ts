@@ -53,6 +53,14 @@ export const betReactions = pgTable(
   (t) => [uniqueIndex('bet_reactions_unique_idx').on(t.betId, t.userId, t.emoji)],
 )
 
+// cache do placar ao vivo (football-data.org) — linha única (id=1) compartilhada
+// por todas as functions para nunca estourar o limite gratuito da API externa
+export const liveCache = pgTable('live_cache', {
+  id: integer('id').primaryKey(),
+  payload: jsonb('payload').notNull(),
+  fetchedAt: timestamp('fetched_at', { withTimezone: true }).notNull(),
+})
+
 // trilha de auditoria das ações administrativas
 export const auditLogs = pgTable(
   'audit_logs',

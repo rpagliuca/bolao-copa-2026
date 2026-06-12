@@ -66,6 +66,13 @@ export interface AdminMatch {
   awayScore: number | null
 }
 
+export interface LiveScore {
+  matchId: number
+  status: 'IN_PLAY' | 'PAUSED' | 'FINISHED'
+  homeScore: number
+  awayScore: number
+}
+
 export interface FeedFieldChange {
   field: 'phase' | 'homeTeam' | 'awayTeam' | 'kickoffAt' | 'homeScore' | 'awayScore'
   from: string | number | null

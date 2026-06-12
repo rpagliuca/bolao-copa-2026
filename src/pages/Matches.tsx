@@ -8,7 +8,7 @@ import { ReactionBubble } from '../components/Reactions'
 import { fmtDateHeading, fmtDayKey, fmtDateTime, fmtTime } from '../format'
 import { buildMatchShareText } from '../share'
 import { isRealTeam, teamName } from '../teams'
-import type { MatchView } from '../types'
+import type { LiveScore, MatchView } from '../types'
 
 type Filter = 'abertos' | 'todos' | 'encerrados'
 
@@ -80,8 +80,30 @@ const SHARE_TOASTS = [
   '📋➡️📱 Resumo pronto pra colar no WhatsApp. Solta o verbo!',
 ]
 
-function MatchCard({ match, players, onSaved }: { match: MatchView; players: string[]; onSaved: () => void }) {
-  const status = match.finished ? 'Encerrado' : match.started ? 'Em andamento' : fmtTime(match.kickoffAt)
+const LIVE_LABELS: Record<LiveScore['status'], string> = {
+  IN_PLAY: '🔴 AO VIVO',
+  PAUSED: '⏸ Intervalo',
+  FINISHED: 'Encerrado',
+}
+
+function MatchCard({
+  match,
+  live,
+  players,
+  onSaved,
+}: {
+  match: MatchView
+  live?: LiveScore
+  players: string[]
+  onSaved: () => void
+}) {
+  const status = match.finished
+    ? 'Encerrado'
+    : live
+      ? LIVE_LABELS[live.status]
+      : match.started
+        ? 'Em andamento'
+        : fmtTime(match.kickoffAt)
   const [copied, setCopied] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
 
@@ -112,11 +134,22 @@ function MatchCard({ match, players, onSaved }: { match: MatchView; players: str
       </div>
       <div className="match-teams">
         <span className="team home">{teamName(match.homeTeam)}</span>
-        <span className="score">
-          {match.finished ? `${match.homeScore} x ${match.awayScore}` : 'x'}
+        <span className={`score ${!match.finished && live ? 'live' : ''}`}>
+          {match.finished
+            ? `${match.homeScore} x ${match.awayScore}`
+            : live
+              ? `${live.homeScore} x ${live.awayScore}`
+              : 'x'}
         </span>
         <span className="team away">{teamName(match.awayTeam)}</span>
       </div>
+      {!match.finished && live && (
+        <p className="live-note">
+          {live.status === 'FINISHED'
+            ? 'Placar final — aguardando o resultado oficial ser lançado para valer pontos'
+            : 'Placar em tempo real — pontos só valem com o resultado oficial'}
+        </p>
+      )}
 
       {match.myBet && (
         <div className={`my-bet ${match.myBet.ignored ? 'ignored' : ''}`}>
@@ -179,9 +212,17 @@ function celebrateNewExactHits(matches: MatchView[]) {
   burst(500, { angle: 120, origin: { x: 1, y: 0.8 } })
 }
 
+// jogo que pode estar rolando agora: do aquecimento (10min antes) até 4h após o início
+function maybeLiveNow(m: MatchView): boolean {
+  const kickoff = new Date(m.kickoffAt).getTime()
+  const now = Date.now()
+  return !m.finished && now >= kickoff - 10 * 60_000 && now - kickoff < 4 * 3_600_000
+}
+
 export default function Matches() {
   const [matches, setMatches] = useState<MatchView[] | null>(null)
   const [players, setPlayers] = useState<string[]>([])
+  const [live, setLive] = useState<Record<number, LiveScore>>({})
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<Filter>('abertos')
   const [team, setTeam] = useState('')
@@ -199,6 +240,25 @@ export default function Matches() {
   useEffect(() => {
     load()
   }, [])
+
+  // placar ao vivo: polling leve (o backend cacheia em banco + CDN), só quando há jogo rolando
+  useEffect(() => {
+    if (!matches) return
+    const poll = () => {
+      if (document.visibilityState !== 'visible') return
+      if (!matches.some(maybeLiveNow)) return
+      api<{ scores: LiveScore[] }>('/api/live')
+        .then((r) => setLive(Object.fromEntries(r.scores.map((s) => [s.matchId, s]))))
+        .catch(() => {}) // placar ao vivo é cosmético: falha não pode quebrar a página
+    }
+    poll()
+    const timer = window.setInterval(poll, 30_000)
+    document.addEventListener('visibilitychange', poll)
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', poll)
+    }
+  }, [matches])
 
   const teams = useMemo(() => {
     if (!matches) return []
@@ -263,7 +323,7 @@ export default function Matches() {
         <section key={group[0].kickoffAt}>
           <h2 className="day-heading">{fmtDateHeading(group[0].kickoffAt)}</h2>
           {group.map((m) => (
-            <MatchCard key={m.id} match={m} players={players} onSaved={load} />
+            <MatchCard key={m.id} match={m} live={live[m.id]} players={players} onSaved={load} />
           ))}
         </section>
       ))}

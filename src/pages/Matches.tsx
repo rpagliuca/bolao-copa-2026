@@ -145,9 +145,7 @@ function MatchCard({
       </div>
       {!match.finished && live && (
         <p className="live-note">
-          {live.status === 'FINISHED'
-            ? 'Placar final — registrando resultado…'
-            : 'Placar em tempo real — pontos só valem com o resultado oficial'}
+          {live.status === 'FINISHED' ? 'Placar final — registrando resultado…' : 'Placar em tempo real'}
         </p>
       )}
 

@@ -346,10 +346,6 @@ input[type='number'] {
   box-shadow: 0 0 0 3px rgba(255, 210, 63, 0.25);
 }
 
-.score-board input::placeholder {
-  color: rgba(255, 210, 63, 0.4);
-}
-
 /* sem setinhas de spinner — placar é digitado */
 .score-board input::-webkit-outer-spin-button,
 .score-board input::-webkit-inner-spin-button {

@@ -42,14 +42,13 @@ function BetForm({ match, onSaved }: { match: MatchView; onSaved: () => void }) 
   return (
     <div className="bet-form">
       <div className="score-board">
-        <span className="score-board-tag">{match.myBet ? '🎯 Seu palpite' : '🤔 Qual seu palpite?'}</span>
+        <span className="score-board-tag">{match.myBet ? '🎯 Seu palpite' : '❓ Qual seu palpite?'}</span>
         <span className="score-team">{teamName(match.homeTeam)}</span>
         <input
           type="number"
           inputMode="numeric"
           min={0}
           max={99}
-          placeholder="·"
           value={home}
           onChange={(e) => setHome(e.target.value)}
           aria-label={`Gols ${teamName(match.homeTeam)}`}
@@ -60,7 +59,6 @@ function BetForm({ match, onSaved }: { match: MatchView; onSaved: () => void }) 
           inputMode="numeric"
           min={0}
           max={99}
-          placeholder="·"
           value={away}
           onChange={(e) => setAway(e.target.value)}
           aria-label={`Gols ${teamName(match.awayTeam)}`}

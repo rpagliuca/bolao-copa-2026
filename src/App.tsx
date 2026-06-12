@@ -4,6 +4,7 @@ import { clearToken, getToken, setToken } from './auth'
 import Admin from './pages/Admin'
 import Matches from './pages/Matches'
 import Ranking from './pages/Ranking'
+import Rules from './pages/Rules'
 import type { Me } from './types'
 
 declare global {
@@ -60,7 +61,7 @@ function Pending({ me, onLogout }: { me: Me; onLogout: () => void }) {
   )
 }
 
-type Tab = 'jogos' | 'ranking' | 'admin'
+type Tab = 'jogos' | 'ranking' | 'regras' | 'admin'
 
 export default function App() {
   const [token, setTokenState] = useState(getToken())
@@ -128,6 +129,9 @@ export default function App() {
         <button className={tab === 'ranking' ? 'active' : ''} onClick={() => setTab('ranking')}>
           Ranking
         </button>
+        <button className={tab === 'regras' ? 'active' : ''} onClick={() => setTab('regras')}>
+          Regras
+        </button>
         {me.isAdmin && (
           <button className={tab === 'admin' ? 'active' : ''} onClick={() => setTab('admin')}>
             Admin
@@ -138,6 +142,7 @@ export default function App() {
       <main className="content">
         {tab === 'jogos' && <Matches />}
         {tab === 'ranking' && <Ranking />}
+        {tab === 'regras' && <Rules />}
         {tab === 'admin' && me.isAdmin && <Admin me={me} />}
       </main>
     </div>

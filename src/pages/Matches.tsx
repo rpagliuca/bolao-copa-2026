@@ -167,6 +167,8 @@ export default function Matches() {
   const [players, setPlayers] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<Filter>('abertos')
+  const [team, setTeam] = useState('')
+  const [onlyUnbet, setOnlyUnbet] = useState(false)
 
   const load = () =>
     api<{ matches: MatchView[]; players: string[] }>('/api/matches')
@@ -181,12 +183,27 @@ export default function Matches() {
     load()
   }, [])
 
+  const teams = useMemo(() => {
+    if (!matches) return []
+    const codes = new Set<string>()
+    for (const m of matches) {
+      codes.add(m.homeTeam)
+      codes.add(m.awayTeam)
+    }
+    return [...codes]
+      .map((code) => ({ code, name: teamName(code) }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
+  }, [matches])
+
   const visible = useMemo(() => {
     if (!matches) return []
-    if (filter === 'abertos') return matches.filter((m) => !m.finished)
-    if (filter === 'encerrados') return matches.filter((m) => m.finished)
-    return matches
-  }, [matches, filter])
+    let list = matches
+    if (filter === 'abertos') list = list.filter((m) => !m.finished)
+    if (filter === 'encerrados') list = list.filter((m) => m.finished)
+    if (team) list = list.filter((m) => m.homeTeam === team || m.awayTeam === team)
+    if (onlyUnbet) list = list.filter((m) => !m.myBet)
+    return list
+  }, [matches, filter, team, onlyUnbet])
 
   const byDay = useMemo(() => {
     const groups = new Map<string, MatchView[]>()
@@ -209,6 +226,19 @@ export default function Matches() {
             {f[0].toUpperCase() + f.slice(1)}
           </button>
         ))}
+      </div>
+      <div className="filters">
+        <select className="team-filter" value={team} onChange={(e) => setTeam(e.target.value)}>
+          <option value="">Todos os times</option>
+          {teams.map((t) => (
+            <option key={t.code} value={t.code}>
+              {t.name}
+            </option>
+          ))}
+        </select>
+        <button className={onlyUnbet ? 'active' : ''} onClick={() => setOnlyUnbet(!onlyUnbet)}>
+          🎯 Sem meu palpite
+        </button>
       </div>
       {byDay.length === 0 && <p className="empty">Nenhum jogo aqui.</p>}
       {byDay.map((group) => (

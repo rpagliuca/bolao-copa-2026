@@ -35,7 +35,7 @@ async function autoFillFinished(scores: LiveScore[], ourMatches: Match[]) {
       entityType: 'match',
       entityId: m.id,
       matchId: m.id,
-      summary: `🤖 Resultado preenchido automaticamente via football-data: ${m.homeTeam} ${s.homeScore}x${s.awayScore} ${m.awayTeam} — admins podem ajustar se necessário`,
+      summary: `🤖 Resultado preenchido automaticamente pelo placar ao vivo (ESPN): ${m.homeTeam} ${s.homeScore}x${s.awayScore} ${m.awayTeam} — admins podem ajustar se necessário`,
       before: m,
       after: updated,
     })

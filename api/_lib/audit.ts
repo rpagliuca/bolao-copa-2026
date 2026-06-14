@@ -9,6 +9,7 @@ interface AuditEntry {
   summary: string
   before?: unknown
   after?: unknown
+  createdAt?: Date
 }
 
 // actor null = ação automática do sistema (sem usuário)
@@ -22,6 +23,7 @@ export async function audit(actor: User | null, entry: AuditEntry) {
     summary: entry.summary,
     before: entry.before ?? null,
     after: entry.after ?? null,
+    ...(entry.createdAt ? { createdAt: entry.createdAt } : {}),
   })
 }
 

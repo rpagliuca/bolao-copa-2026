@@ -3,7 +3,7 @@ import { and, eq } from 'drizzle-orm'
 import { audit } from './_lib/audit.js'
 import { requireApproved } from './_lib/auth.js'
 import { db } from './_lib/db.js'
-import { bets, matches } from './_lib/schema.js'
+import { auditLogs, bets, matches } from './_lib/schema.js'
 import { isIgnored } from './_lib/scoring.js'
 
 function validScore(n: unknown): n is number {
@@ -46,6 +46,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .returning()
 
   if (existing) {
+    // Na primeira alteração: grava um log bet.origin backdatado com a data original do palpite
+    const [priorUpdate] = await db
+      .select({ id: auditLogs.id })
+      .from(auditLogs)
+      .where(and(eq(auditLogs.entityType, 'bet'), eq(auditLogs.entityId, saved.id), eq(auditLogs.action, 'bet.update')))
+      .limit(1)
+    if (!priorUpdate) {
+      await audit(null, {
+        action: 'bet.origin',
+        entityType: 'bet',
+        entityId: saved.id,
+        matchId,
+        summary: `📌 Palpite original registrado pelo próprio jogador no app`,
+        createdAt: existing.betAt,
+      })
+    }
+
     await audit(user, {
       action: 'bet.update',
       entityType: 'bet',

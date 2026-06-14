@@ -21,7 +21,21 @@ function Login({ onToken }: { onToken: (token: string) => void }) {
       clearInterval(timer)
       window.google.accounts.id.initialize({
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        callback: (resp: { credential: string }) => onToken(resp.credential),
+        callback: async (resp: { credential: string }) => {
+          try {
+            const r = await fetch('/api/auth/session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ idToken: resp.credential }),
+            })
+            if (!r.ok) throw new Error('session')
+            const { token } = await r.json()
+            onToken(token)
+          } catch {
+            // fallback: usa o ID token do Google diretamente (expira em 1h)
+            onToken(resp.credential)
+          }
+        },
       })
       window.google.accounts.id.renderButton(buttonRef.current, {
         theme: 'filled_blue',

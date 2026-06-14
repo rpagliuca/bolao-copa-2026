@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
+import { audit } from './_lib/audit.js'
 import { requireApproved } from './_lib/auth.js'
 import { db } from './_lib/db.js'
 import { bets, matches } from './_lib/schema.js'
@@ -24,6 +25,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const [match] = await db.select().from(matches).where(eq(matches.id, matchId))
   if (!match) return res.status(404).json({ error: 'Jogo não encontrado' })
 
+  const [existing] = await db
+    .select()
+    .from(bets)
+    .where(and(eq(bets.userId, user.id), eq(bets.matchId, matchId)))
+
   // Palpite é permitido a qualquer momento; se feito após o início do jogo,
   // será marcado como "ignorado" a posteriori (modelo decidido com o Rafael).
   const [saved] = await db
@@ -34,6 +40,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       set: { homeScore, awayScore, betAt: new Date(), origin: 'app', invalidatedByAdmin: false },
     })
     .returning()
+
+  if (existing) {
+    await audit(user, {
+      action: 'bet.update',
+      entityType: 'bet',
+      entityId: saved.id,
+      matchId,
+      summary: `Alterou o palpite: ${existing.homeScore}x${existing.awayScore} → ${homeScore}x${awayScore}`,
+      before: existing,
+      after: saved,
+    })
+  }
 
   res.json({
     bet: {

@@ -840,6 +840,11 @@ input[type='number'] {
   color: var(--muted);
 }
 
+.history-bet-prev {
+  color: var(--muted);
+  font-style: italic;
+}
+
 .app-footer {
   text-align: center;
   padding: 0.5rem;

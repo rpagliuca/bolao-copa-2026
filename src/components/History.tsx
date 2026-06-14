@@ -4,6 +4,12 @@ import { api } from '../api'
 import { fmtDateTime } from '../format'
 import type { AuditLog } from '../types'
 
+function PrevBetScore({ log }: { log: AuditLog }) {
+  const b = log.before
+  if (!b || typeof b.homeScore !== 'number' || typeof b.awayScore !== 'number') return null
+  return <small className="history-bet-prev">era: {b.homeScore} × {b.awayScore}</small>
+}
+
 export function HistoryLogList({ logs }: { logs: AuditLog[] }) {
   if (logs.length === 0) return <p className="empty">Nenhuma alteração registrada.</p>
   return (
@@ -14,6 +20,7 @@ export function HistoryLogList({ logs }: { logs: AuditLog[] }) {
             {fmtDateTime(l.createdAt)} · <strong>{l.actorName}</strong>
           </small>
           <span>{l.summary}</span>
+          <PrevBetScore log={l} />
         </li>
       ))}
     </ul>

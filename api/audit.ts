@@ -27,7 +27,7 @@ function serialize(log: AuditLog, actorName: string) {
 
 // evento sintético de criação para objetos que nasceram fora da trilha de
 // auditoria (seed inicial, palpite do próprio jogador, login)
-async function creationEvent(entityType: EntityType, entityId: number) {
+async function creationEvent(entityType: EntityType, entityId: number, originalBetAt?: string) {
   const base = { id: 0, entityType, entityId, before: null, after: null, matchId: null as number | null }
 
   if (entityType === 'match') {
@@ -55,9 +55,10 @@ async function creationEvent(entityType: EntityType, entityId: number) {
       action: 'bet.origin',
       summary:
         bet.origin === 'app'
-          ? `📌 Palpite registrado pelo próprio jogador no app (data do registro mais recente feito por ele)`
-          : `📌 Palpite lançado por admin em nome de ${ownerName} (anterior ao histórico de alterações)`,
-      createdAt: bet.betAt.toISOString(),
+          ? `📌 Palpite original registrado pelo próprio jogador no app`
+          : `📌 Palpite lançado por admin em nome de ${ownerName}`,
+      // originalBetAt = betAt do before do log mais antigo (antes de qualquer alteração)
+      createdAt: originalBetAt ?? bet.betAt.toISOString(),
     }
   }
 
@@ -99,7 +100,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // criação real já registrada (match.create / bet.create) dispensa o evento sintético
     const hasCreate = rows.some((r) => r.log.action === `${entityType}.create`)
     if (!hasCreate) {
-      const creation = await creationEvent(entityType, entityId!)
+      // Para palpites com histórico: recupera betAt original do before do log mais antigo
+      // (rows está em desc; o último elemento é o registro mais antigo)
+      let originalBetAt: string | undefined
+      if (entityType === 'bet' && rows.length > 0) {
+        const b = rows[rows.length - 1].log.before as Record<string, unknown> | null
+        if (b?.betAt) originalBetAt = new Date(b.betAt as string).toISOString()
+      }
+      const creation = await creationEvent(entityType, entityId!, originalBetAt)
       if (creation) logs.push(creation) // lista está em ordem decrescente; criação é o mais antigo
     }
     return res.json({ logs })

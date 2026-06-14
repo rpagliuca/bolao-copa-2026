@@ -194,7 +194,7 @@ function MatchCard({
         </div>
       )}
 
-      {!match.finished && <BetForm match={match} onSaved={onSaved} />}
+      {!match.finished && !(match.started && match.myBet) && <BetForm match={match} onSaved={onSaved} />}
 
       <div className="others">
         <strong className="others-title">Palpites da galera {match.bets.length > 0 && `(${match.bets.length})`}</strong>

@@ -30,8 +30,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .from(bets)
     .where(and(eq(bets.userId, user.id), eq(bets.matchId, matchId)))
 
-  // Palpite é permitido a qualquer momento; se feito após o início do jogo,
-  // será marcado como "ignorado" a posteriori (modelo decidido com o Rafael).
+  // Alteração de palpite existente após o kickoff é bloqueada.
+  // Primeiro palpite após o kickoff ainda é permitido (ficará "ignorado").
+  if (existing && new Date() >= match.kickoffAt) {
+    return res.status(403).json({ error: 'Não é possível alterar palpite após o início do jogo' })
+  }
+
   const [saved] = await db
     .insert(bets)
     .values({ userId: user.id, matchId, homeScore, awayScore, betAt: new Date(), origin: 'app' })

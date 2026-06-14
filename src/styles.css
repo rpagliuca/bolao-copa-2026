@@ -839,3 +839,11 @@ input[type='number'] {
 .history-list small {
   color: var(--muted);
 }
+
+.app-footer {
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.15);
+  font-family: monospace;
+}

@@ -159,6 +159,7 @@ export default function App() {
         {tab === 'regras' && <Rules />}
         {tab === 'admin' && me.isAdmin && <Admin me={me} />}
       </main>
+      <footer className="app-footer">{__COMMIT_HASH__}</footer>
     </div>
   )
 }

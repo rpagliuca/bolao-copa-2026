@@ -159,7 +159,16 @@ export default function App() {
         {tab === 'regras' && <Rules />}
         {tab === 'admin' && me.isAdmin && <Admin me={me} />}
       </main>
-      <footer className="app-footer">{__COMMIT_HASH__}</footer>
+      <footer className="app-footer">
+        🧑‍💻{' '}
+        <a
+          href={__COMMIT_SHA__ ? `https://github.com/rpagliuca/bolao-copa-2026/commit/${__COMMIT_SHA__}` : 'https://github.com/rpagliuca/bolao-copa-2026'}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {__COMMIT_HASH__}
+        </a>
+      </footer>
     </div>
   )
 }

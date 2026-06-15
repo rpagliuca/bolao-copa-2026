@@ -66,3 +66,21 @@ export function buildMatchShareText(match: MatchView, players: string[]): string
   lines.push(urgent && missing.length > 0 ? `👉 corre lá: ${APP_URL}` : `👉 ${APP_URL}`)
   return lines.join('\n')
 }
+
+export function buildRankingShareText(rows: { position: number; name: string; points: number; exact: number }[]): string {
+  const lines: string[] = []
+
+  lines.push('🏆 *BOLÃO DA COPA 2026 — CLASSIFICAÇÃO* 🏆')
+  lines.push('')
+
+  for (const r of rows) {
+    const medal = r.position === 1 ? '🥇' : r.position === 2 ? '🥈' : r.position === 3 ? '🥉' : `${r.position}.`
+    lines.push(`${medal} ${r.name} — ${r.points} pts (${r.exact} exatos)`)
+  }
+
+  lines.push('')
+  lines.push('⚽ Ainda dá tempo de virar! Vai lá palpitar:')
+  lines.push(`👉 ${APP_URL}`)
+
+  return lines.join('\n')
+}

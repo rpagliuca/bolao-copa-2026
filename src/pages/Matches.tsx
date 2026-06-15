@@ -190,6 +190,9 @@ function MatchCard({
           {!match.finished && live && !match.myBet.ignored && (
             <LiveBetBadge betHome={match.myBet.homeScore} betAway={match.myBet.awayScore} live={live} />
           )}
+          {match.finished && match.myBet.points === 5 && (
+            <button className="confetti-btn" title="Rever festa 🎊" onClick={fireConfetti}>🎊</button>
+          )}
           <HistoryButton entityType="bet" entityId={match.myBet.id} title="Histórico — seu palpite" />
         </div>
       )}
@@ -227,6 +230,20 @@ function MatchCard({
   )
 }
 
+function fireConfetti() {
+  const burst = (delay: number, opts: confetti.Options) =>
+    setTimeout(() => confetti({ particleCount: 90, spread: 75, origin: { y: 0.7 }, ...opts }), delay)
+  burst(0, {})
+  burst(300, { angle: 60, origin: { x: 0, y: 0.8 } })
+  burst(600, { angle: 120, origin: { x: 1, y: 0.8 } })
+  burst(1200, { particleCount: 60, spread: 90, origin: { y: 0.6 } })
+  burst(2000, { angle: 75, origin: { x: 0.2, y: 0.75 } })
+  burst(2500, { angle: 105, origin: { x: 0.8, y: 0.75 } })
+  burst(3500, { particleCount: 120, spread: 100, origin: { y: 0.65 } })
+  burst(4500, { angle: 60, origin: { x: 0.1, y: 0.8 } })
+  burst(5000, { angle: 120, origin: { x: 0.9, y: 0.8 } })
+}
+
 // confete quando o usuário abre o app e descobre que cravou um placar exato
 function celebrateNewExactHits(matches: MatchView[]) {
   const KEY = 'bolao-confetti-celebrated'
@@ -242,11 +259,7 @@ function celebrateNewExactHits(matches: MatchView[]) {
   )
   if (hits.length === 0) return
   localStorage.setItem(KEY, JSON.stringify([...seen, ...hits.map((m) => m.id)]))
-  const burst = (delay: number, opts: confetti.Options) =>
-    setTimeout(() => confetti({ particleCount: 90, spread: 75, origin: { y: 0.7 }, ...opts }), delay)
-  burst(0, {})
-  burst(300, { angle: 60, origin: { x: 0, y: 0.8 } })
-  burst(500, { angle: 120, origin: { x: 1, y: 0.8 } })
+  fireConfetti()
 }
 
 // jogo que pode estar rolando agora: do aquecimento (10min antes) até 4h após o início

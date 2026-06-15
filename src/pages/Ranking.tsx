@@ -50,8 +50,8 @@ export default function Ranking() {
             <th>#</th>
             <th>Jogador</th>
             <th>Pts</th>
-            <th title="Placares exatos (critério de desempate)">Exatos</th>
-            <th title="Acertou só o resultado">Resultados</th>
+            <th title="Placares exatos (critério de desempate)">Placares exatos 🎯</th>
+            <th title="Acertou só o resultado">Resultados simples</th>
           </tr>
         </thead>
         <tbody>

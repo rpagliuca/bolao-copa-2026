@@ -464,6 +464,15 @@ input[type='number'] {
   padding: 6px 8px;
 }
 
+.ranking th:nth-child(3),
+.ranking th:nth-child(4),
+.ranking th:nth-child(5),
+.ranking td:nth-child(3),
+.ranking td:nth-child(4),
+.ranking td:nth-child(5) {
+  text-align: center;
+}
+
 .ranking td {
   padding: 10px 8px;
   border-top: 1px solid #eef1ee;

@@ -454,7 +454,7 @@ input[type='number'] {
 .ranking {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .ranking th {

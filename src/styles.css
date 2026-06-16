@@ -482,6 +482,13 @@ input[type='number'] {
   border-top: 1px solid #eef1ee;
 }
 
+.th-abbr { display: none; }
+
+@media (max-width: 480px) {
+  .th-full { display: none; }
+  .th-abbr { display: inline; }
+}
+
 .player {
   display: flex;
   align-items: center;

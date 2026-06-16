@@ -454,27 +454,31 @@ input[type='number'] {
 .ranking {
   width: 100%;
   border-collapse: collapse;
+  font-size: 13px;
 }
 
 .ranking th {
   text-align: left;
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
   color: var(--muted);
-  padding: 6px 8px;
+  padding: 6px 4px;
+  white-space: nowrap;
 }
 
 .ranking th:nth-child(3),
 .ranking th:nth-child(4),
 .ranking th:nth-child(5),
+.ranking th:nth-child(6),
 .ranking td:nth-child(3),
 .ranking td:nth-child(4),
-.ranking td:nth-child(5) {
+.ranking td:nth-child(5),
+.ranking td:nth-child(6) {
   text-align: center;
 }
 
 .ranking td {
-  padding: 10px 8px;
+  padding: 8px 4px;
   border-top: 1px solid #eef1ee;
 }
 

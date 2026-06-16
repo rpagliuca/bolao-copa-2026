@@ -49,7 +49,7 @@ export default function Ranking() {
           <tr>
             <th>#</th>
             <th>Jogador</th>
-            <th>Pts</th>
+            <th>Pontos</th>
             <th title="Resultados simples / placares exatos (critério de desempate)">Acertos Simples / Exatos&nbsp;🎯</th>
             <th title="Jogos encerrados com palpite válido (dentro do prazo)">Jogos</th>
           </tr>

@@ -50,8 +50,7 @@ export default function Ranking() {
             <th>#</th>
             <th>Jogador</th>
             <th>Pts</th>
-            <th title="Placares exatos (critério de desempate)">Placares exatos 🎯</th>
-            <th title="Acertou só o resultado">Resultados simples</th>
+            <th title="Resultados simples + placares exatos (critério de desempate)">Acertos Simples + Exatos 🎯</th>
             <th title="Jogos encerrados com palpite válido (dentro do prazo)">Jogos</th>
           </tr>
         </thead>
@@ -66,8 +65,7 @@ export default function Ranking() {
               <td>
                 <strong>{r.points}</strong>
               </td>
-              <td>{r.exact}</td>
-              <td>{r.outcome}</td>
+              <td>{r.outcome} + {r.exact} 🎯</td>
               <td>{r.counted}</td>
             </tr>
           ))}

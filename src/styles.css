@@ -489,6 +489,7 @@ input[type='number'] {
   .ranking th {
     font-size: 9px;
     padding: 4px 2px;
+    white-space: normal;
   }
   .ranking td {
     padding: 6px 2px;

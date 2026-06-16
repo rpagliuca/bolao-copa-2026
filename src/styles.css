@@ -454,12 +454,12 @@ input[type='number'] {
 .ranking {
   width: 100%;
   border-collapse: collapse;
-  font-size: 22px;
+  font-size: 17px;
 }
 
 .ranking th {
   text-align: left;
-  font-size: 14px;
+  font-size: 11px;
   text-transform: uppercase;
   color: var(--muted);
   padding: 6px 4px;
@@ -480,11 +480,7 @@ input[type='number'] {
 }
 
 @media (max-width: 480px) {
-  .ranking {
-    font-size: 13px;
-  }
   .ranking th {
-    font-size: 12px;
     padding: 4px 2px;
   }
   .ranking td {

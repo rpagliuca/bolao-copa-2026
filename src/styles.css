@@ -482,11 +482,20 @@ input[type='number'] {
   border-top: 1px solid #eef1ee;
 }
 
-.th-abbr { display: none; }
-
 @media (max-width: 480px) {
-  .th-full { display: none; }
-  .th-abbr { display: inline; }
+  .ranking {
+    font-size: 10px;
+  }
+  .ranking th {
+    font-size: 9px;
+    padding: 4px 2px;
+  }
+  .ranking td {
+    padding: 6px 2px;
+  }
+  .player img {
+    display: none;
+  }
 }
 
 .player {

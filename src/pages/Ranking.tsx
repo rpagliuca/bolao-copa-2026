@@ -50,18 +50,9 @@ export default function Ranking() {
             <th>#</th>
             <th>Jogador</th>
             <th>Pts</th>
-            <th title="Placares exatos (critério de desempate)">
-              <span className="th-full">Placares exatos 🎯</span>
-              <span className="th-abbr">🎯</span>
-            </th>
-            <th title="Acertou só o resultado">
-              <span className="th-full">Resultados simples</span>
-              <span className="th-abbr">Res.</span>
-            </th>
-            <th title="Jogos encerrados com palpite válido (dentro do prazo)">
-              <span className="th-full">Jogos</span>
-              <span className="th-abbr">Jgs</span>
-            </th>
+            <th title="Placares exatos (critério de desempate)">Placares exatos 🎯</th>
+            <th title="Acertou só o resultado">Resultados simples</th>
+            <th title="Jogos encerrados com palpite válido (dentro do prazo)">Jogos</th>
           </tr>
         </thead>
         <tbody>

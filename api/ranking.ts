@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm'
 import { requireApproved } from './_lib/auth.js'
 import { db } from './_lib/db.js'
 import { bets, matches, users } from './_lib/schema.js'
-import { betPoints, POINTS_EXACT } from './_lib/scoring.js'
+import { betPoints, isIgnored, POINTS_EXACT } from './_lib/scoring.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const user = await requireApproved(req, res)
@@ -28,7 +28,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!m) continue
       const p = betPoints(b, m)
       if (p === null) continue
-      counted++
+      if (!isIgnored(b, m)) counted++
       points += p
       if (p === POINTS_EXACT) exact++
       else if (p > 0) outcome++

@@ -20,7 +20,7 @@ export function buildMatchShareText(match: MatchView, players: string[]): string
 
   // alerta de urgência quando o kickoff está chegando
   const msLeft = new Date(match.kickoffAt).getTime() - Date.now()
-  const urgent = !match.started && msLeft <= 3 * 3_600_000
+  const urgent = !match.started && msLeft > 0 && msLeft <= 3 * 3_600_000
   if (urgent) {
     const h = Math.floor(msLeft / 3_600_000)
     const min = Math.floor((msLeft % 3_600_000) / 60_000)

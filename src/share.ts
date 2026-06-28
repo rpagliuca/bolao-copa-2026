@@ -67,10 +67,13 @@ export function buildMatchShareText(match: MatchView, players: string[]): string
   return lines.join('\n')
 }
 
-export function buildRankingShareText(rows: { position: number; name: string; points: number; exact: number }[]): string {
+export function buildRankingShareText(
+  rows: { position: number; name: string; points: number; exact: number }[],
+  label?: string,
+): string {
   const lines: string[] = []
-
-  lines.push('🏆 *BOLÃO DA COPA 2026 — CLASSIFICAÇÃO* 🏆')
+  const title = label ? `BOLÃO DA COPA 2026 — ${label.toUpperCase()}` : 'BOLÃO DA COPA 2026 — CLASSIFICAÇÃO'
+  lines.push(`🏆 *${title}* 🏆`)
   lines.push('')
 
   for (const r of rows) {

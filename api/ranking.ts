@@ -5,9 +5,15 @@ import { db } from './_lib/db.js'
 import { bets, matches, users } from './_lib/schema.js'
 import { betPoints, isIgnored, POINTS_EXACT } from './_lib/scoring.js'
 
+function isGrupo(phase: string) {
+  return phase.startsWith('Grupo')
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const user = await requireApproved(req, res)
   if (!user) return
+
+  const fase = (req.query.fase as string) || 'matamata'
 
   const [approvedUsers, allMatches, allBets] = await Promise.all([
     db.select().from(users).where(eq(users.status, 'approved')),
@@ -15,7 +21,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     db.select().from(bets),
   ])
 
-  const matchById = new Map(allMatches.map((m) => [m.id, m]))
+  const filteredMatches = allMatches.filter((m) => {
+    if (fase === 'grupos') return isGrupo(m.phase)
+    if (fase === 'matamata') return !isGrupo(m.phase)
+    return true
+  })
+
+  const matchById = new Map(filteredMatches.map((m) => [m.id, m]))
 
   const rows = approvedUsers.map((u) => {
     let points = 0

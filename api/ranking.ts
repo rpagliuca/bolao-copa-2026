@@ -10,7 +10,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!user) return
 
   const fase = (req.query.fase as string) || 'matamata'
-  const now = new Date()
+  // corte fixo: início do mata-mata (28/06/2026 10h00 BRT = UTC-3)
+  const cutoff = new Date('2026-06-28T13:00:00Z')
 
   const [approvedUsers, allMatches, allBets] = await Promise.all([
     db.select().from(users).where(eq(users.status, 'approved')),
@@ -19,8 +20,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   ])
 
   const filteredMatches = allMatches.filter((m) => {
-    if (fase === 'grupos') return m.kickoffAt < now
-    if (fase === 'matamata') return m.kickoffAt >= now
+    if (fase === 'grupos') return m.kickoffAt < cutoff
+    if (fase === 'matamata') return m.kickoffAt >= cutoff
     return true
   })
 
